@@ -8,6 +8,12 @@ import (
 type SysMenusResponse struct {
 	//Menus []model.SysMenu `json:"menus"`
 	Menus []request.MenuList `json:"menus"`
+
+}
+
+type SysAuthorityMenusResponse struct {
+	//Menus []model.SysMenu `json:"menus"`
+	Menus []request.AuthorityMenuList `json:"menus"`
 }
 
 type SysBaseMenusResponse struct {

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"gin-vue-admin/global"
 	"gin-vue-admin/model"
+	"gin-vue-admin/model/postgres"
 	req "gin-vue-admin/model/postgres/request"
 	"gin-vue-admin/model/request"
 	"gorm.io/gorm"
@@ -101,18 +102,21 @@ func GetAuthorityInfoList(info request.PageInfo) (err error, list interface{}, t
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
 	db:= global.GVA_DB.Table("sys_authorities")
-	var authority []req.SysAuthority
+	var authlist []req.SysAuthority
+	var authority []postgres.SysAuthority
 	db.Where("parent_id = '0'")
 	err = db.Where("parent_id = '0'").Count(&total).Error
 	err = db.Limit(limit).Offset(offset).Where("parent_id = '0'").Find(&authority).Error
 
 	if len(authority) > 0 {
 		for k := range authority {
-			err = findChildrenAuthority(&authority[k])
+			if auth,err := findChildrenAuthority(authority[k]); err == nil{
+				authlist = append(authlist,auth)
+			}
 		}
 	}
 
-	return err, authority, total
+	return err, authlist, total
 }
 
 //@author: [piexlmax](https://github.com/piexlmax)
@@ -158,15 +162,37 @@ func SetMenuAuthority(auth *model.SysAuthority) error {
 //@param: authority *model.SysAuthority
 //@return: err error
 
-func findChildrenAuthority(authority *req.SysAuthority) (err error) {
+func findChildrenAuthority(authority postgres.SysAuthority) (list req.SysAuthority, err error) {
 	//err = global.GVA_DB.Preload("DataAuthorityId").Where("parent_id = ?", authority.AuthorityId).Find(&authority.Children).Error
-	var list []req.SysAuthority
-	err = global.GVA_DB.Table("sys_authorities").Where("parent_id = ?", authority.AuthorityId).Find(&list).Error
-	if len(list) > 0 {
-		for k := range list {
-			authority.Children = append(authority.Children,list[k])
-			err = findChildrenAuthority(&list[k])
+	var authorityList  []postgres.SysAuthority
+	err = global.GVA_DB.Table("sys_authorities").Where("parent_id = ?", authority.AuthorityId).Find(&authorityList).Error
+	list.AuthorityName = authority.AuthorityName
+	list.AuthorityId = authority.AuthorityId
+	list.ParentId = authority.ParentId
+	list.DefaultRouter = authority.DefaultRouter
+	list.CreatedAt = authority.CreatedAt
+	list.UpdatedAt = authority.UpdatedAt
+	if len(authorityList) > 0 {
+		var objList []req.SysAuthority
+		for k := range authorityList {
+			var obj req.SysAuthority
+			obj.AuthorityName = authorityList[k].AuthorityName
+			obj.AuthorityId = authorityList[k].AuthorityId
+			obj.ParentId = authorityList[k].ParentId
+			obj.DefaultRouter = authorityList[k].DefaultRouter
+			obj.CreatedAt = authorityList[k].CreatedAt
+			obj.UpdatedAt = authorityList[k].UpdatedAt
+
+		    objchildren ,_:=findChildrenAuthority(authorityList[k])
+			if len(objchildren.Children) > 0 {
+				obj.Children = append(obj.Children,objchildren)
+			}else {
+				obj.Children = []req.SysAuthority{}
+			}
+
+			objList =append(objList,obj)
 		}
+		list.Children = append(list.Children,objList...)
 	}
-	return err
+	return list,err
 }

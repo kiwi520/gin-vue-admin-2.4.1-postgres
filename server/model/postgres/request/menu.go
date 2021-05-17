@@ -24,3 +24,8 @@ type Meta struct {
 	Icon        string `json:"icon" gorm:"comment:菜单图标"`
 	CloseTab    bool   `json:"closeTab" gorm:"comment:自动关闭tab"`
 }
+
+type AuthorityMenuList struct {
+	SysAuthorityAuthorityId int                 `json:"authorityId"`
+	SysBaseMenuId      int                 `json:"menuId"`
+}

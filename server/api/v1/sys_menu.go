@@ -81,9 +81,12 @@ func GetMenuAuthority(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
+	println("param.AuthorityId")
+	println(param.AuthorityId)
+	println("param.AuthorityId")
 	if err, menus := service.GetMenuAuthority(&param); err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Any("err", err))
-		response.FailWithDetailed(response.SysMenusResponse{Menus: menus}, "获取失败", c)
+		response.FailWithDetailed(response.SysAuthorityMenusResponse{Menus: menus}, "获取失败", c)
 	} else {
 		response.OkWithDetailed(gin.H{"menus": menus}, "获取成功", c)
 	}
