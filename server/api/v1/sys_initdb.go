@@ -17,9 +17,12 @@ import (
 // @Success 200 {string} string "{"code":0,"data":{},"msg":"自动创建数据库成功"}"
 // @Router /init/initdb [post]
 func InitDB(c *gin.Context) {
-	if global.GVA_DB != nil {
-		global.GVA_LOG.Error("非法访问")
-		response.FailWithMessage("非法访问", c)
+
+	migrate := CheckInit()
+	//if global.GVA_DB != nil {
+	if migrate {
+		global.GVA_LOG.Error("非法访问，已初始化完数据")
+		response.FailWithMessage("非法访问，已初始化完数据", c)
 		return
 	}
 	var dbInfo request.InitDB
@@ -43,7 +46,13 @@ func InitDB(c *gin.Context) {
 // @Router /init/checkdb [post]
 func CheckDB(c *gin.Context) {
 
-	if global.GVA_DB != nil {
+	println("global.GVA_DB")
+	println(global.GVA_DB)
+	println("global.GVA_DB")
+
+	migrate := CheckInit()
+	//if global.GVA_DB != nil {
+	if migrate {
 		global.GVA_LOG.Info("数据库无需初始化")
 		response.OkWithDetailed(gin.H{
 			"needInit": false,
@@ -56,4 +65,15 @@ func CheckDB(c *gin.Context) {
 		}, "前往初始化数据库", c)
 		return
 	}
+}
+
+func CheckInit() bool {
+	var migrate bool =false
+	err :=global.GVA_DB.Table("sys_migrations").Select("migrate").Find(&migrate).Error
+
+	if err != nil {
+		println(err.Error())
+	}
+
+	return migrate
 }

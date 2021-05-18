@@ -113,7 +113,7 @@ func InitPostgres(conf request.InitDB) error {
 		model.ExaSimpleUploader{},
 		model.ExaCustomer{},
 		pgModel.SysOperationRecord{},
-		pgModel.Migration{},
+		pgModel.SysMigration{},
 	)
 
 	if err != nil {

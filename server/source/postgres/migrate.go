@@ -11,7 +11,7 @@ var Migrate = new(migrate)
 
 type migrate struct{}
 
-var migrates = postgres.Migration{true,time.Now(),time.Now()}
+var migrates = postgres.SysMigration{true,time.Now(),time.Now()}
 
 //@author: [SliverHorn](https://github.com/SliverHorn)
 //@description: exa_file_upload_and_downloads 表初始化数据
