@@ -76,9 +76,19 @@ export default {
     // 关联树 确认方法
     async relation() {
       const checkArr = this.$refs.menuTree.getCheckedNodes(false, true)
+      // console.log(checkArr)
+      let MenuList = []
+      checkArr.forEach(item=>{
+        MenuList.push({
+          // menu_id:'"'+item.ID+'"'
+          menu_id:item.ID
+        })
+      })
+      console.log(MenuList)
+
       const res = await addMenuAuthority({
-        menus: checkArr,
-        authorityId: this.row.authorityId
+        menus: MenuList,
+        authority_id: this.row.authorityId
       })
       if (res.code == 0) {
         this.$message({

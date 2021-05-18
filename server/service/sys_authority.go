@@ -149,12 +149,33 @@ func SetDataAuthority(auth model.SysAuthority) error {
 //@param: auth *model.SysAuthority
 //@return: error
 
-func SetMenuAuthority(auth *model.SysAuthority) error {
-	var s model.SysAuthority
-	global.GVA_DB.Preload("SysBaseMenus").First(&s, "authority_id = ?", auth.AuthorityId)
-	err := global.GVA_DB.Model(&s).Association("SysBaseMenus").Replace(&auth.SysBaseMenus)
+func SetMenuAuthority(auth *[]postgres.SysMenu,authorityId string) error {
+	err:=global.GVA_DB.Transaction(func(tx *gorm.DB) error {
+		// do some database operations in the transaction (use 'tx' from this point, not 'db')
+		if err := tx.Where("sys_authority_authority_id = ?",authorityId).Delete(&postgres.SysMenu{}).Error; err != nil {
+			// return any error will rollback
+			//tx.Rollback()
+			return err
+		}
+
+		if err := tx.Create(&auth).Error; err != nil {
+			//tx.Rollback()
+			return err
+		}
+
+		// return nil will commit the whole transaction
+		//tx.Commit()
+		return nil
+	})
+
 	return err
 }
+//func SetMenuAuthority(auth *model.SysAuthority) error {
+//	var s model.SysAuthority
+//	global.GVA_DB.Preload("SysBaseMenus").First(&s, "authority_id = ?", auth.AuthorityId)
+//	err := global.GVA_DB.Model(&s).Association("SysBaseMenus").Replace(&auth.SysBaseMenus)
+//	return err
+//}
 
 //@author: [piexlmax](https://github.com/piexlmax)
 //@function: findChildrenAuthority

@@ -3,6 +3,7 @@ package v1
 import (
 	"gin-vue-admin/global"
 	"gin-vue-admin/model"
+	req "gin-vue-admin/model/postgres/request"
 	"gin-vue-admin/model/request"
 	"gin-vue-admin/model/response"
 	"gin-vue-admin/service"
@@ -52,13 +53,24 @@ func GetBaseMenuTree(c *gin.Context) {
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"添加成功"}"
 // @Router /menu/addMenuAuthority [post]
 func AddMenuAuthority(c *gin.Context) {
-	var authorityMenu request.AddMenuAuthorityInfo
+	var authorityMenu req.AddMenuAuthorityInfo
 	_ = c.ShouldBindJSON(&authorityMenu)
 	if err := utils.Verify(authorityMenu, utils.AuthorityIdVerify); err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	if err := service.AddMenuAuthority(authorityMenu.Menus, authorityMenu.AuthorityId); err != nil {
+
+	println("authorityMenu")
+	println(authorityMenu.AuthorityId)
+	println("len(authorityMenu.Menus)")
+	println(len(authorityMenu.Menus))
+	println("len(authorityMenu.Menus)")
+	for _,item:= range authorityMenu.Menus {
+		println(item.MenuId )
+		println("\n dd")
+	}
+	println("authorityMenu")
+	if err := service.AddMenuAuthority(authorityMenu); err != nil {
 		global.GVA_LOG.Error("添加失败!", zap.Any("err", err))
 		response.FailWithMessage("添加失败", c)
 	} else {

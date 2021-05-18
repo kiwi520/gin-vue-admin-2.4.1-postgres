@@ -29,3 +29,12 @@ type AuthorityMenuList struct {
 	SysAuthorityAuthorityId int                 `json:"authorityId"`
 	SysBaseMenuId      int                 `json:"menuId"`
 }
+
+// Add menu authority info structure
+type AddMenuAuthorityInfo struct {
+	Menus       []Menu `json:"menus"`
+	AuthorityId string `json:"authority_id"`
+}
+type Menu struct {
+	MenuId int `json:"menu_id"`
+}

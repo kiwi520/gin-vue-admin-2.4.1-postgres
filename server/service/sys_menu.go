@@ -4,6 +4,7 @@ import (
 	"errors"
 	"gin-vue-admin/global"
 	"gin-vue-admin/model"
+	"gin-vue-admin/model/postgres"
 	req "gin-vue-admin/model/postgres/request"
 	"gin-vue-admin/model/request"
 	"gorm.io/gorm"
@@ -145,11 +146,20 @@ func GetBaseMenuTree() (err error, menus []model.SysBaseMenu) {
 //@param: menus []model.SysBaseMenu, authorityId string
 //@return: err error
 
-func AddMenuAuthority(menus []model.SysBaseMenu, authorityId string) (err error) {
+func AddMenuAuthority(menu req.AddMenuAuthorityInfo) (err error) {
 	var auth model.SysAuthority
-	auth.AuthorityId = authorityId
-	auth.SysBaseMenus = menus
-	err = SetMenuAuthority(&auth)
+	auth.AuthorityId = menu.AuthorityId
+	//auth.SysBaseMenus = menus
+	authorityId,_:=strconv.Atoi(menu.AuthorityId)
+	var muenlist []postgres.SysMenu
+
+	for _,item := range menu.Menus {
+		muenlist = append(muenlist,postgres.SysMenu{
+			SysAuthorityAuthorityId: authorityId,
+			SysBaseMenuId: item.MenuId,
+		})
+	}
+	err = SetMenuAuthority(&muenlist,menu.AuthorityId)
 	return err
 }
 
