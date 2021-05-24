@@ -7,7 +7,9 @@ import (
 	"gin-vue-admin/model/postgres"
 	req "gin-vue-admin/model/postgres/request"
 	"gin-vue-admin/model/request"
+	"gin-vue-admin/model/response"
 	"gorm.io/gorm"
+	"strconv"
 )
 
 //@author: [piexlmax](https://github.com/piexlmax)
@@ -16,13 +18,14 @@ import (
 //@param: auth model.SysAuthority
 //@return: err error, authority model.SysAuthority
 
-func CreateAuthority(auth model.SysAuthority) (err error, authority model.SysAuthority) {
-	var authorityBox model.SysAuthority
+func CreateAuthority(auth postgres.SysAuthority) (err error, authority postgres.SysAuthority) {
+	var authorityBox postgres.SysAuthority
 	if !errors.Is(global.GVA_DB.Where("authority_id = ?", auth.AuthorityId).First(&authorityBox).Error, gorm.ErrRecordNotFound) {
 		return errors.New("存在相同角色id"), auth
 	}
 	err = global.GVA_DB.Create(&auth).Error
 	return err, auth
+
 }
 
 //@author: [piexlmax](https://github.com/piexlmax)
@@ -31,30 +34,82 @@ func CreateAuthority(auth model.SysAuthority) (err error, authority model.SysAut
 //@param: copyInfo response.SysAuthorityCopyResponse
 //@return: err error, authority model.SysAuthority
 
-//func CopyAuthority(copyInfo response.SysAuthorityCopyResponse) (err error, authority model.SysAuthority) {
-//	var authorityBox model.SysAuthority
-//	if !errors.Is(global.GVA_DB.Where("authority_id = ?", copyInfo.Authority.AuthorityId).First(&authorityBox).Error, gorm.ErrRecordNotFound) {
-//		return errors.New("存在相同角色id"), authority
-//	}
-//	copyInfo.Authority.Children = []model.SysAuthority{}
-//	err, menus := GetMenuAuthority(&request.GetAuthorityId{AuthorityId: copyInfo.OldAuthorityId})
-//	//var baseMenu []model.SysBaseMenu
-//	var baseMenu []pr.MenuList
-//	for _, v := range menus {
-//		intNum, _ := strconv.Atoi(v.MenuId)
-//		v.SysBaseMenu.ID = uint(intNum)
-//		baseMenu = append(baseMenu, v.SysBaseMenu)
-//	}
-//	copyInfo.Authority.SysBaseMenus = baseMenu
-//	err = global.GVA_DB.Create(&copyInfo.Authority).Error
-//
-//	paths := GetPolicyPathByAuthorityId(copyInfo.OldAuthorityId)
-//	err = UpdateCasbin(copyInfo.Authority.AuthorityId, paths)
-//	if err != nil {
-//		_ = DeleteAuthority(&copyInfo.Authority)
-//	}
-//	return err, copyInfo.Authority
-//}
+func CopyAuthority(copyInfo response.SysAuthorityCopyResponse) (err error, authority postgres.SysAuthority) {
+	var authorityBox postgres.SysAuthority
+
+	if !errors.Is(global.GVA_DB.Where("authority_id = ?", copyInfo.Authority.AuthorityId).First(&authorityBox).Error, gorm.ErrRecordNotFound) {
+		return errors.New("权限菜单存在相同角色id"), authority
+	}
+
+	type CasBinRule struct {
+		id int
+	}
+	var casbin_rules []CasBinRule
+
+	//判断CasBinRule表中是否存在此id的数据
+	err = global.GVA_DB.Table("casbin_rule").Select("id").Where("v0 = ?", copyInfo.Authority.AuthorityId).Find(&casbin_rules).Error
+
+	if err != nil {
+		return err, authority
+	}
+
+	if len(casbin_rules) > 0 {
+		return errors.New("api中存在相同角色id"), authority
+	}
+
+	paths := GetPolicyPathByAuthorityId(copyInfo.OldAuthorityId)
+	err = UpdateCasbin(copyInfo.Authority.AuthorityId, paths)
+	if err != nil {
+		//_ = DeleteAuthority(&copyInfo.Authority)
+		return err, copyInfo.Authority
+	}
+
+	newAuthorityId, _ := strconv.Atoi(copyInfo.Authority.AuthorityId)
+	err, menus := GetMenuAuthority(&request.GetAuthorityId{AuthorityId: copyInfo.OldAuthorityId})
+
+	if err != nil {
+		return err, copyInfo.Authority
+	}
+
+	//获取菜单权限数据
+	var AuthorityMenu []postgres.SysMenu
+	for _, v := range menus {
+		AuthorityMenu = append(AuthorityMenu, postgres.SysMenu{
+			SysAuthorityAuthorityId: newAuthorityId,
+			SysBaseMenuId:           v.SysBaseMenuId,
+		})
+	}
+
+	err = global.GVA_DB.Transaction(func(tx *gorm.DB) error {
+		//添加权限菜单
+		if err := tx.Create(&AuthorityMenu).Error; err != nil {
+			// return any error will rollback
+			return err
+		}
+
+		//添加权限
+		if err := tx.Create(&copyInfo.Authority).Error; err != nil {
+			return err
+		}
+
+		// return nil will commit the whole transaction
+		return nil
+	})
+
+	if err != nil { //如果入库失败删除casbin里的角色api数据
+		ClearCasbin(0, copyInfo.Authority.AuthorityId)
+	}
+
+	//copyInfo.Authority.SysBaseMenus = baseMenu
+	//err = global.GVA_DB.Create(&copyInfo.Authority).Error
+
+	//paths := GetPolicyPathByAuthorityId(copyInfo.OldAuthorityId)
+	//err = UpdateCasbin(copyInfo.Authority.AuthorityId, paths)
+	//if err != nil {
+	//	//_ = DeleteAuthority(&copyInfo.Authority)
+	//}
+	return err, copyInfo.Authority
+}
 
 //@author: [piexlmax](https://github.com/piexlmax)
 //@function: UpdateAuthority
@@ -62,8 +117,8 @@ func CreateAuthority(auth model.SysAuthority) (err error, authority model.SysAut
 //@param: auth model.SysAuthority
 //@return:err error, authority model.SysAuthority
 
-func UpdateAuthority(auth model.SysAuthority) (err error, authority model.SysAuthority) {
-	err = global.GVA_DB.Where("authority_id = ?", auth.AuthorityId).First(&model.SysAuthority{}).Updates(&auth).Error
+func UpdateAuthority(auth postgres.SysAuthority) (err error, authority postgres.SysAuthority) {
+	err = global.GVA_DB.Where("authority_id = ?", auth.AuthorityId).First(&postgres.SysAuthority{}).Updates(&auth).Error
 	return err, auth
 }
 
@@ -101,7 +156,7 @@ func DeleteAuthority(auth *model.SysAuthority) (err error) {
 func GetAuthorityInfoList(info request.PageInfo) (err error, list interface{}, total int64) {
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
-	db:= global.GVA_DB.Table("sys_authorities")
+	db := global.GVA_DB.Table("sys_authorities")
 	var authlist []req.SysAuthority
 	var authority []postgres.SysAuthority
 	db.Where("parent_id = '0'")
@@ -110,8 +165,8 @@ func GetAuthorityInfoList(info request.PageInfo) (err error, list interface{}, t
 
 	if len(authority) > 0 {
 		for k := range authority {
-			if auth,err := findChildrenAuthority(authority[k]); err == nil{
-				authlist = append(authlist,auth)
+			if auth, err := findChildrenAuthority(authority[k]); err == nil {
+				authlist = append(authlist, auth)
 			}
 		}
 	}
@@ -149,10 +204,10 @@ func SetDataAuthority(auth model.SysAuthority) error {
 //@param: auth *model.SysAuthority
 //@return: error
 
-func SetMenuAuthority(auth *[]postgres.SysMenu,authorityId string) error {
-	err:=global.GVA_DB.Transaction(func(tx *gorm.DB) error {
+func SetMenuAuthority(auth *[]postgres.SysMenu, authorityId string) error {
+	err := global.GVA_DB.Transaction(func(tx *gorm.DB) error {
 		// do some database operations in the transaction (use 'tx' from this point, not 'db')
-		if err := tx.Where("sys_authority_authority_id = ?",authorityId).Delete(&postgres.SysMenu{}).Error; err != nil {
+		if err := tx.Where("sys_authority_authority_id = ?", authorityId).Delete(&postgres.SysMenu{}).Error; err != nil {
 			// return any error will rollback
 			//tx.Rollback()
 			return err
@@ -170,6 +225,7 @@ func SetMenuAuthority(auth *[]postgres.SysMenu,authorityId string) error {
 
 	return err
 }
+
 //func SetMenuAuthority(auth *model.SysAuthority) error {
 //	var s model.SysAuthority
 //	global.GVA_DB.Preload("SysBaseMenus").First(&s, "authority_id = ?", auth.AuthorityId)
@@ -185,7 +241,7 @@ func SetMenuAuthority(auth *[]postgres.SysMenu,authorityId string) error {
 
 func findChildrenAuthority(authority postgres.SysAuthority) (list req.SysAuthority, err error) {
 	//err = global.GVA_DB.Preload("DataAuthorityId").Where("parent_id = ?", authority.AuthorityId).Find(&authority.Children).Error
-	var authorityList  []postgres.SysAuthority
+	var authorityList []postgres.SysAuthority
 	err = global.GVA_DB.Table("sys_authorities").Where("parent_id = ?", authority.AuthorityId).Find(&authorityList).Error
 	list.AuthorityName = authority.AuthorityName
 	list.AuthorityId = authority.AuthorityId
@@ -196,24 +252,10 @@ func findChildrenAuthority(authority postgres.SysAuthority) (list req.SysAuthori
 	if len(authorityList) > 0 {
 		var objList []req.SysAuthority
 		for k := range authorityList {
-			var obj req.SysAuthority
-			obj.AuthorityName = authorityList[k].AuthorityName
-			obj.AuthorityId = authorityList[k].AuthorityId
-			obj.ParentId = authorityList[k].ParentId
-			obj.DefaultRouter = authorityList[k].DefaultRouter
-			obj.CreatedAt = authorityList[k].CreatedAt
-			obj.UpdatedAt = authorityList[k].UpdatedAt
-
-		    objchildren ,_:=findChildrenAuthority(authorityList[k])
-			if len(objchildren.Children) > 0 {
-				obj.Children = append(obj.Children,objchildren)
-			}else {
-				obj.Children = []req.SysAuthority{}
-			}
-
-			objList =append(objList,obj)
+			author, _ := findChildrenAuthority(authorityList[k])
+			objList = append(objList, author)
 		}
-		list.Children = append(list.Children,objList...)
+		list.Children = append(list.Children, objList...)
 	}
-	return list,err
+	return list, err
 }

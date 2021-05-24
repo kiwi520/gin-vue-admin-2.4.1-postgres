@@ -266,7 +266,7 @@ export default {
                 authority: {
                   authorityId: "string",
                   authorityName: "string",
-                  datauthorityId: [],
+                  // datauthorityId: [],
                   parentId: "string"
                 },
                 oldAuthorityId: 0
@@ -274,7 +274,7 @@ export default {
               data.authority.authorityId = this.form.authorityId;
               data.authority.authorityName = this.form.authorityName;
               data.authority.parentId = this.form.parentId;
-              data.authority.dataAuthorityId = this.copyForm.dataAuthorityId;
+              // data.authority.dataAuthorityId = this.copyForm.dataAuthorityId;
               data.oldAuthorityId = this.copyForm.authorityId;
               const res = await copyAuthority(data);
               if (res.code == 0) {
