@@ -50,15 +50,12 @@ func CopyAuthority(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
+
 	if err := utils.Verify(copyInfo.Authority, utils.AuthorityVerify); err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
 
-
-	println("copyInfo")
-	println(copyInfo.OldAuthorityId)
-	println("copyInfo")
 	if err, authBack := service.CopyAuthority(copyInfo); err != nil {
 		global.GVA_LOG.Error("拷贝失败!", zap.Any("err", err))
 		response.FailWithMessage("拷贝失败"+err.Error(), c)
@@ -76,7 +73,7 @@ func CopyAuthority(c *gin.Context) {
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"删除成功"}"
 // @Router /authority/deleteAuthority [post]
 func DeleteAuthority(c *gin.Context) {
-	var authority model.SysAuthority
+	var authority postgres.SysAuthority
 	_ = c.ShouldBindJSON(&authority)
 	if err := utils.Verify(authority, utils.AuthorityIdVerify); err != nil {
 		response.FailWithMessage(err.Error(), c)

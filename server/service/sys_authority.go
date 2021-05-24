@@ -28,7 +28,7 @@ func CreateAuthority(auth postgres.SysAuthority) (err error, authority postgres.
 
 }
 
-//@author: [piexlmax](https://github.com/piexlmax)
+//@author: [piexlmax](https://github.com/kiwi520)
 //@function: CopyAuthority
 //@description: 复制一个角色
 //@param: copyInfo response.SysAuthorityCopyResponse
@@ -70,7 +70,6 @@ func CopyAuthority(copyInfo response.SysAuthorityCopyResponse) (err error, autho
 	if err != nil {
 		return err, copyInfo.Authority
 	}
-
 	//获取菜单权限数据
 	var AuthorityMenu []postgres.SysMenu
 	for _, v := range menus {
@@ -106,36 +105,56 @@ func CopyAuthority(copyInfo response.SysAuthorityCopyResponse) (err error, autho
 //@author: [piexlmax](https://github.com/piexlmax)
 //@function: UpdateAuthority
 //@description: 更改一个角色
-//@param: auth model.SysAuthority
-//@return:err error, authority model.SysAuthority
+//@param: auth postgres.SysAuthority
+//@return:err error, authority postgres.SysAuthority
 
 func UpdateAuthority(auth postgres.SysAuthority) (err error, authority postgres.SysAuthority) {
 	err = global.GVA_DB.Where("authority_id = ?", auth.AuthorityId).First(&postgres.SysAuthority{}).Updates(&auth).Error
 	return err, auth
 }
 
-//@author: [piexlmax](https://github.com/piexlmax)
+//@author: [piexlmax](https://github.com/kiwi520)
 //@function: DeleteAuthority
 //@description: 删除角色
-//@param: auth *model.SysAuthority
+//@param: auth *postgres.SysAuthority
 //@return: err error
 
-func DeleteAuthority(auth *model.SysAuthority) (err error) {
-	if !errors.Is(global.GVA_DB.Where("authority_id = ?", auth.AuthorityId).First(&model.SysUser{}).Error, gorm.ErrRecordNotFound) {
+func DeleteAuthority(auth *postgres.SysAuthority) (err error) {
+	if !errors.Is(global.GVA_DB.Where("authority_id = ?", auth.AuthorityId).First(&postgres.SysUser{}).Error, gorm.ErrRecordNotFound) {
 		return errors.New("此角色有用户正在使用禁止删除")
 	}
-	if !errors.Is(global.GVA_DB.Where("parent_id = ?", auth.AuthorityId).First(&model.SysAuthority{}).Error, gorm.ErrRecordNotFound) {
+
+	if !errors.Is(global.GVA_DB.Where("parent_id = ?", auth.AuthorityId).First(&postgres.SysAuthority{}).Error, gorm.ErrRecordNotFound) {
 		return errors.New("此角色存在子角色不允许删除")
 	}
-	db := global.GVA_DB.Preload("SysBaseMenus").Where("authority_id = ?", auth.AuthorityId).First(auth)
-	err = db.Unscoped().Delete(auth).Error
-	if len(auth.SysBaseMenus) > 0 {
-		err = global.GVA_DB.Model(auth).Association("SysBaseMenus").Delete(auth.SysBaseMenus)
-		//err = db.Association("SysBaseMenus").Delete(&auth)
+
+	err = global.GVA_DB.Transaction(func(tx *gorm.DB) error {
+		//移除权限菜单操作
+		if err := tx.Where("authority_id =?", auth.AuthorityId).Delete(&postgres.SysAuthority{}).Error; err != nil {
+			// return any error will rollback
+			return err
+		}
+
+		//移除权限操作
+		if err := tx.Where("sys_authority_authority_id =?", auth.AuthorityId).Delete(&postgres.SysMenu{}).Error; err != nil {
+			return err
+		}
+
+		// return nil will commit the whole transaction
+		return nil
+	})
+
+	if err != nil {
+		return err
 	} else {
-		err = db.Error
+		//删除casbin里的角色api数据
+		ClearCasbin(0, auth.AuthorityId)
 	}
-	ClearCasbin(0, auth.AuthorityId)
+
+	//global.GVA_DB.Where("authority_id =?",auth.AuthorityId).Delete(&postgres.SysAuthority{});
+	//global.GVA_DB.Where("sys_authority_authority_id =?",auth.AuthorityId).Delete(&postgres.SysMenu{});
+
+	//ClearCasbin(0, auth.AuthorityId)
 	return err
 }
 
@@ -201,17 +220,14 @@ func SetMenuAuthority(auth *[]postgres.SysMenu, authorityId string) error {
 		// do some database operations in the transaction (use 'tx' from this point, not 'db')
 		if err := tx.Where("sys_authority_authority_id = ?", authorityId).Delete(&postgres.SysMenu{}).Error; err != nil {
 			// return any error will rollback
-			//tx.Rollback()
 			return err
 		}
 
 		if err := tx.Create(&auth).Error; err != nil {
-			//tx.Rollback()
 			return err
 		}
 
 		// return nil will commit the whole transaction
-		//tx.Commit()
 		return nil
 	})
 

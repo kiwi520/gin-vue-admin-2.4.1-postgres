@@ -103,9 +103,9 @@ func Casbin() *casbin.Enforcer {
 	conf := global.GVA_CONFIG.Postgresql
 
 
-	println("global.GVA_CONFIG.System.DbType")
-	println(global.GVA_CONFIG.System.DbType)
-	println("global.GVA_CONFIG.System.DbType")
+	//println("global.GVA_CONFIG.System.DbType")
+	//println(global.GVA_CONFIG.System.DbType)
+	//println("global.GVA_CONFIG.System.DbType")
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable TimeZone=Asia/Shanghai", conf.Host,conf.Username, conf.Password, conf.Dbname, conf.Port)
 	a, _ := gormadapter.NewAdapter(global.GVA_CONFIG.System.DbType, dsn, true)
 	e, _ := casbin.NewEnforcer(global.GVA_CONFIG.Casbin.ModelPath, a)

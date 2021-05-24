@@ -211,11 +211,6 @@ func NewAdapterByDBWithCustomTable(db *gorm.DB, t interface{}) (*Adapter, error)
 }
 
 func openDBConnection(driverName, dataSourceName string) (*gorm.DB, error) {
-	println("driverName")
-	println(driverName)
-	println(driverName)
-	println(driverName)
-	println("driverName")
 	var err error
 	var db *gorm.DB
 	if driverName == "postgres" {
