@@ -190,7 +190,7 @@ func GetTables(dbName string) (err error, TableNames []request.TableReq) {
 	return err, TableNames
 }
 
-//@author: [piexlmax](https://github.com/piexlmax)
+//@author: [piexlmax](https://github.com/kiwi520)
 //@function: GetDB
 //@description: 获取数据库的所有数据库名
 //@param: pathName string
