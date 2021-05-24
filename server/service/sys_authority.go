@@ -32,7 +32,7 @@ func CreateAuthority(auth postgres.SysAuthority) (err error, authority postgres.
 //@function: CopyAuthority
 //@description: 复制一个角色
 //@param: copyInfo response.SysAuthorityCopyResponse
-//@return: err error, authority model.SysAuthority
+//@return: err error, authority postgres.SysAuthority
 
 func CopyAuthority(copyInfo response.SysAuthorityCopyResponse) (err error, authority postgres.SysAuthority) {
 	var authorityBox postgres.SysAuthority
@@ -100,14 +100,6 @@ func CopyAuthority(copyInfo response.SysAuthorityCopyResponse) (err error, autho
 		ClearCasbin(0, copyInfo.Authority.AuthorityId)
 	}
 
-	//copyInfo.Authority.SysBaseMenus = baseMenu
-	//err = global.GVA_DB.Create(&copyInfo.Authority).Error
-
-	//paths := GetPolicyPathByAuthorityId(copyInfo.OldAuthorityId)
-	//err = UpdateCasbin(copyInfo.Authority.AuthorityId, paths)
-	//if err != nil {
-	//	//_ = DeleteAuthority(&copyInfo.Authority)
-	//}
 	return err, copyInfo.Authority
 }
 
