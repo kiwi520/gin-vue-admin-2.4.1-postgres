@@ -186,7 +186,8 @@ func GetAllTplFile(pathName string, fileList []string) ([]string, error) {
 //@return: []string, error
 
 func GetTables(dbName string) (err error, TableNames []request.TableReq) {
-	err = global.GVA_DB.Raw("select table_name as table_name from information_schema.tables where table_schema = ?", dbName).Scan(&TableNames).Error
+	//err = global.GVA_DB.Raw("select table_name as table_name from information_schema.tables where table_schema = ?", dbName).Scan(&TableNames).Error
+	err = global.GVA_DB.Raw("select pg.tablename as table_name from pg_tables as pg where pg.schemaname = ?", dbName).Scan(&TableNames).Error
 	return err, TableNames
 }
 
@@ -199,7 +200,7 @@ func GetTables(dbName string) (err error, TableNames []request.TableReq) {
 
 func GetDB() (err error, DBNames []request.DBReq) {
 	//err = global.GVA_DB.Raw("SELECT SCHEMA_NAME AS `database` FROM INFORMATION_SCHEMA.SCHEMATA;").Scan(&DBNames).Error
-	err = global.GVA_DB.Raw("select pg_database.datname as database from pg_database;").Scan(&DBNames).Error
+	err = global.GVA_DB.Raw("select distinct schemaname as  database from pg_tables where schemaname!='pg_catalog' and schemaname!='information_schema';").Scan(&DBNames).Error
 	return err, DBNames
 }
 
@@ -211,7 +212,7 @@ func GetDB() (err error, DBNames []request.DBReq) {
 //@return: []string, error
 
 func GetColumn(tableName string, dbName string) (err error, Columns []request.ColumnReq) {
-	err = global.GVA_DB.Raw("SELECT COLUMN_NAME column_name,DATA_TYPE data_type,CASE DATA_TYPE WHEN 'longtext' THEN c.CHARACTER_MAXIMUM_LENGTH WHEN 'varchar' THEN c.CHARACTER_MAXIMUM_LENGTH WHEN 'double' THEN CONCAT_WS( ',', c.NUMERIC_PRECISION, c.NUMERIC_SCALE ) WHEN 'decimal' THEN CONCAT_WS( ',', c.NUMERIC_PRECISION, c.NUMERIC_SCALE ) WHEN 'int' THEN c.NUMERIC_PRECISION WHEN 'bigint' THEN c.NUMERIC_PRECISION ELSE '' END AS data_type_long,COLUMN_COMMENT column_comment FROM INFORMATION_SCHEMA.COLUMNS c WHERE table_name = ? AND table_schema = ?", tableName, dbName).Scan(&Columns).Error
+	err = global.GVA_DB.Raw("SELECT column_name,\n       data_type,\n       table_schema,\n       case data_type\n           WHEN 'bigint' THEN numeric_precision\n           WHEN 'int' THEN numeric_precision\n           WHEN 'character varying' THEN character_maximum_length\n           WHEN 'timestamp with time zone' THEN datetime_precision\n           WHEN 'text' THEN character_octet_length\n           WHEN 'boolean' THEN '1'\n           end                                                                                          AS \"data_type_long\",\n       (SELECT coalesce(col_description(a.attrelid, a.attnum),'')\nFROM pg_class as c,\n     pg_attribute as a\nwhere c.relname = ic.table_name\n  and a.attrelid = c.oid\n  and a.attnum > 0 and a.attname = ic.column_name)                                                                    as \"column_comment\"\nFROM information_schema.columns as ic\nWHERE table_name = ? and table_schema= ?;", tableName, dbName).Scan(&Columns).Error
 	return err, Columns
 }
 

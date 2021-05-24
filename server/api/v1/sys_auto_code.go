@@ -91,7 +91,8 @@ func CreateTemp(c *gin.Context) {
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"获取成功"}"
 // @Router /autoCode/getTables [get]
 func GetTables(c *gin.Context) {
-	dbName := c.DefaultQuery("dbName", global.GVA_CONFIG.Mysql.Dbname)
+	//dbName := c.DefaultQuery("dbName", global.GVA_CONFIG.Mysql.Dbname)
+	dbName := c.DefaultQuery("dbName", "public")
 	err, tables := service.GetTables(dbName)
 	if err != nil {
 		global.GVA_LOG.Error("查询table失败!", zap.Any("err", err))
@@ -125,7 +126,8 @@ func GetDB(c *gin.Context) {
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"获取成功"}"
 // @Router /autoCode/getColumn [get]
 func GetColumn(c *gin.Context) {
-	dbName := c.DefaultQuery("dbName", global.GVA_CONFIG.Mysql.Dbname)
+	//dbName := c.DefaultQuery("dbName", global.GVA_CONFIG.Mysql.Dbname)
+	dbName := c.DefaultQuery("dbName", "public")
 	tableName := c.Query("tableName")
 	if err, columns := service.GetColumn(tableName, dbName); err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Any("err", err))
