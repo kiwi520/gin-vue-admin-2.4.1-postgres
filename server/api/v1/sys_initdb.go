@@ -18,9 +18,8 @@ import (
 // @Router /init/initdb [post]
 func InitDB(c *gin.Context) {
 
-	migrate := CheckInit()
 	//if global.GVA_DB != nil {
-	if migrate {
+	if global.GVA_MIGRATE {
 		global.GVA_LOG.Error("非法访问，已初始化完数据")
 		response.FailWithMessage("非法访问，已初始化完数据", c)
 		return
@@ -46,13 +45,12 @@ func InitDB(c *gin.Context) {
 // @Router /init/checkdb [post]
 func CheckDB(c *gin.Context) {
 
-	println("global.GVA_DB")
-	println(global.GVA_DB)
-	println("global.GVA_DB")
+	if !global.GVA_MIGRATE {
+		global.GVA_MIGRATE = CheckInit()
+	}
 
-	migrate := CheckInit()
 	//if global.GVA_DB != nil {
-	if migrate {
+	if global.GVA_MIGRATE {
 		global.GVA_LOG.Info("数据库无需初始化")
 		response.OkWithDetailed(gin.H{
 			"needInit": false,
@@ -69,7 +67,7 @@ func CheckDB(c *gin.Context) {
 
 func CheckInit() bool {
 	var migrate bool =false
-	err :=global.GVA_DB.Table("sys_migrations").Select("migrate").Find(&migrate).Error
+	err :=global.GVA_DB.Table("migrations").Select("migrate").Find(&migrate).Error
 
 	if err != nil {
 		println(err.Error())
