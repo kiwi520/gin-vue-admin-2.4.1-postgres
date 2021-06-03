@@ -1,74 +1,9 @@
-# Gin-Vue-Admin Global Configuration
-
-# jwt configuration
-jwt:
-  signing-key: 'qmPlus'
-  expires-time: 604800
-  buffer-time: 86400
-
-# zap logger configuration
-zap:
-  level: 'info'
-  format: 'console'
-  prefix: '[GIN-VUE-ADMIN]'
-  director: 'log'
-  link-name: 'latest_log'
-  show-line: true
-  encode-level: 'LowercaseColorLevelEncoder'
-  stacktrace-key: 'stacktrace'
-  log-in-console: true
-
-# redis configuration
-redis:
-  db: 0
-  addr: '127.0.0.1:6379'
-  password: ''
-
-# email configuration
-email:
-  to: 'xxx@qq.com'
-  port: 465
-  from: 'xxx@163.com'
-  host: 'smtp.163.com'
-  is-ssl: true
-  secret: 'xxx'
-  nickname: 'test'
-
-# casbin configuration
-casbin:
-  model-path: './resource/rbac_model.conf'
-
-# system configuration
-system:
-  env: 'public'  # Change to "develop" to skip authentication for development mode
-  addr: 8888
-  db-type: 'postgres'
-  oss-type: 'local'    # 控制oss选择走本期还是 七牛等其他仓 自行增加其他oss仓可以在 server/utils/upload/upload.go 中 NewOss函数配置
-  use-multipoint: false
-
-# captcha configuration
-captcha:
-  key-long: 6
-  img-width: 240
-  img-height: 80
-
-# mysql connect configuration
-mysql:
-  path: ''
-  config: ''
-  db-name: ''
-  username: ''
-  password: ''
-  max-idle-conns: 10
-  max-open-conns: 100
-  log-mode: false
-  log-zap: ""
-
-# local configuration
-local:
-  path: 'uploads/file'
-
-# autocode configuration
+aliyun-oss:
+  access-key-id: yourAccessKeyId
+  access-key-secret: yourAccessKeySecret
+  bucket-name: yourBucketName
+  bucket-url: yourBucketUrl
+  endpoint: yourEndpoint
 autocode:
   root: ""
   server: /server
@@ -83,48 +18,81 @@ autocode:
   web-flow: /view
   web-form: /view
   web-table: /view
-
-# qiniu configuration (请自行七牛申请对应的 公钥 私钥 bucket �?域名地址)
-qiniu:
-  zone: 'ZoneHuadong'
-  bucket: 'qm-plus-img'
-  img-path: 'http://qmplusimg.henrongyi.top'
-  use-https: false
-  access-key: '25j8dYBZ2wuiy0yhwShytjZDTX662b8xiFguwxzZ'
-  secret-key: 'pgdbqEsf7ooZh7W3xokP833h3dZ_VecFXPDeG5JY'
-  use-cdn-domains: false
-
-
-# aliyun oss configuration
-aliyun-oss:
-  endpoint: 'yourEndpoint'
-  access-key-id: 'yourAccessKeyId'
-  access-key-secret: 'yourAccessKeySecret'
-  bucket-name: 'yourBucketName'
-  bucket-url: 'yourBucketUrl'
-
-# tencent cos configuration
-tencent-cos:
-  bucket: 'xxxxx-10005608'
-  region: 'ap-shanghai'
-  secret-id: 'xxxxxxxx'
-  secret-key: 'xxxxxxxx'
-  base-url: 'https://gin.vue.admin'
-  path-prefix: 'gin-vue-admin'
-
-# excel configuration
+captcha:
+  img-height: 80
+  img-width: 240
+  key-long: 6
+casbin:
+  model-path: ./resource/rbac_model.conf
+email:
+  from: xxx@163.com
+  host: smtp.163.com
+  is-ssl: true
+  nickname: test
+  port: 465
+  secret: xxx
+  to: xxx@qq.com
 excel:
-  dir: './resource/excel/'
-
-# Postgresql connect configuration
+  dir: ./resource/excel/
+jwt:
+  buffer-time: 86400
+  expires-time: 604800
+  signing-key: qmPlus
+local:
+  path: uploads/file
+mysql:
+  config: ""
+  db-name: ""
+  log-mode: false
+  log-zap: ""
+  max-idle-conns: 10
+  max-open-conns: 100
+  password: ""
+  path: ""
+  username: ""
 postgresql:
-  host: '127.0.0.1'
-  port: 5432
-  config: 'sslmode=disable TimeZone=Asia/Shanghai'
-  db-name: 'ds'
-  username: 'goland'
-  password: 'goland'
+  config: sslmode=disable TimeZone=Asia/Shanghai
+  db-name: dddd
+  host: 127.0.0.1
+  logger: false
   max-idle-conns: 10
   max-open-conns: 10
+  password: dddd
+  port: 5432
   prefer-simple-protocol: true
-  logger: false
+  username: dddd
+qiniu:
+  access-key: 25j8dYBZ2wuiy0yhwShytjZDTX662b8xiFguwxzZ
+  bucket: qm-plus-img
+  img-path: http://qmplusimg.henrongyi.top
+  secret-key: pgdbqEsf7ooZh7W3xokP833h3dZ_VecFXPDeG5JY
+  use-cdn-domains: false
+  use-https: false
+  zone: ZoneHuadong
+redis:
+  addr: 127.0.0.1:6379
+  db: 0
+  password: ""
+system:
+  addr: 8888
+  db-type: postgres
+  env: public
+  oss-type: local
+  use-multipoint: false
+tencent-cos:
+  base-url: https://gin.vue.admin
+  bucket: xxxxx-10005608
+  path-prefix: gin-vue-admin
+  region: ap-shanghai
+  secret-id: xxxxxxxx
+  secret-key: xxxxxxxx
+zap:
+  director: log
+  encode-level: LowercaseColorLevelEncoder
+  format: console
+  level: info
+  link-name: latest_log
+  log-in-console: true
+  prefix: '[GIN-VUE-ADMIN]'
+  show-line: true
+  stacktrace-key: stacktrace

@@ -67,7 +67,7 @@ func CheckDB(c *gin.Context) {
 
 func CheckInit() bool {
 	var migrate bool =false
-	err :=global.GVA_DB.Table("migrations").Select("migrate").Find(&migrate).Error
+	err :=global.GVA_DB.Table("sys_migrations").Select("migrate").Find(&migrate).Error
 
 	if err != nil {
 		println(err.Error())
