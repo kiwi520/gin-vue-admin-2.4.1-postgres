@@ -1,4 +1,4 @@
-package model
+package postgres
 
 type CasbinModel struct {
 	Ptype       string `json:"ptype" gorm:"column:ptype"`

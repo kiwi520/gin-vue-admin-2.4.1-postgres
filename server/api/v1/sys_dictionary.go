@@ -2,7 +2,7 @@ package v1
 
 import (
 	"gin-vue-admin/global"
-	"gin-vue-admin/model"
+	"gin-vue-admin/model/postgres"
 	"gin-vue-admin/model/request"
 	"gin-vue-admin/model/response"
 	"gin-vue-admin/service"
@@ -16,11 +16,11 @@ import (
 // @Security ApiKeyAuth
 // @accept application/json
 // @Produce application/json
-// @Param data body model.SysDictionary true "SysDictionary模型"
+// @Param data body postgres.SysDictionary true "SysDictionary模型"
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"创建成功"}"
 // @Router /sysDictionary/createSysDictionary [post]
 func CreateSysDictionary(c *gin.Context) {
-	var dictionary model.SysDictionary
+	var dictionary postgres.SysDictionary
 	_ = c.ShouldBindJSON(&dictionary)
 	if err := service.CreateSysDictionary(dictionary); err != nil {
 		global.GVA_LOG.Error("创建失败!", zap.Any("err", err))
@@ -35,11 +35,11 @@ func CreateSysDictionary(c *gin.Context) {
 // @Security ApiKeyAuth
 // @accept application/json
 // @Produce application/json
-// @Param data body model.SysDictionary true "SysDictionary模型"
+// @Param data body postgres.SysDictionary true "SysDictionary模型"
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"删除成功"}"
 // @Router /sysDictionary/deleteSysDictionary [delete]
 func DeleteSysDictionary(c *gin.Context) {
-	var dictionary model.SysDictionary
+	var dictionary postgres.SysDictionary
 	_ = c.ShouldBindJSON(&dictionary)
 	if err := service.DeleteSysDictionary(dictionary); err != nil {
 		global.GVA_LOG.Error("删除失败!", zap.Any("err", err))
@@ -54,11 +54,11 @@ func DeleteSysDictionary(c *gin.Context) {
 // @Security ApiKeyAuth
 // @accept application/json
 // @Produce application/json
-// @Param data body model.SysDictionary true "SysDictionary模型"
+// @Param data body postgres.SysDictionary true "SysDictionary模型"
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"更新成功"}"
 // @Router /sysDictionary/updateSysDictionary [put]
 func UpdateSysDictionary(c *gin.Context) {
-	var dictionary model.SysDictionary
+	var dictionary postgres.SysDictionary
 	_ = c.ShouldBindJSON(&dictionary)
 	if err := service.UpdateSysDictionary(&dictionary); err != nil {
 		global.GVA_LOG.Error("更新失败!", zap.Any("err", err))
@@ -73,11 +73,11 @@ func UpdateSysDictionary(c *gin.Context) {
 // @Security ApiKeyAuth
 // @accept application/json
 // @Produce application/json
-// @Param data body model.SysDictionary true "ID或字典英名"
+// @Param data body postgres.SysDictionary true "ID或字典英名"
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"查询成功"}"
 // @Router /sysDictionary/findSysDictionary [get]
 func FindSysDictionary(c *gin.Context) {
-	var dictionary model.SysDictionary
+	var dictionary postgres.SysDictionary
 	_ = c.ShouldBindQuery(&dictionary)
 	if err, sysDictionary := service.GetSysDictionary(dictionary.Type, dictionary.ID); err != nil {
 		global.GVA_LOG.Error("查询失败!", zap.Any("err", err))

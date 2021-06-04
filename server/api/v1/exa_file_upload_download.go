@@ -2,7 +2,7 @@ package v1
 
 import (
 	"gin-vue-admin/global"
-	"gin-vue-admin/model"
+	"gin-vue-admin/model/postgres"
 	"gin-vue-admin/model/request"
 	"gin-vue-admin/model/response"
 	"gin-vue-admin/service"
@@ -19,7 +19,7 @@ import (
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"上传成功"}"
 // @Router /fileUploadAndDownload/upload [post]
 func UploadFile(c *gin.Context) {
-	var file model.ExaFileUploadAndDownload
+	var file postgres.ExaFileUploadAndDownload
 	noSave := c.DefaultQuery("noSave", "0")
 	_, header, err := c.Request.FormFile("file")
 	if err != nil {
@@ -40,11 +40,11 @@ func UploadFile(c *gin.Context) {
 // @Summary 删除文件
 // @Security ApiKeyAuth
 // @Produce  application/json
-// @Param data body model.ExaFileUploadAndDownload true "传入文件里面id即可"
+// @Param data body postgres.ExaFileUploadAndDownload true "传入文件里面id即可"
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"删除成功"}"
 // @Router /fileUploadAndDownload/deleteFile [post]
 func DeleteFile(c *gin.Context) {
-	var file model.ExaFileUploadAndDownload
+	var file postgres.ExaFileUploadAndDownload
 	_ = c.ShouldBindJSON(&file)
 	if err := service.DeleteFile(file); err != nil {
 		global.GVA_LOG.Error("删除失败!", zap.Any("err", err))

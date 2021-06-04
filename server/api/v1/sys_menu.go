@@ -2,7 +2,7 @@ package v1
 
 import (
 	"gin-vue-admin/global"
-	"gin-vue-admin/model"
+	"gin-vue-admin/model/postgres"
 	req "gin-vue-admin/model/postgres/request"
 	"gin-vue-admin/model/request"
 	"gin-vue-admin/model/response"
@@ -109,11 +109,11 @@ func GetMenuAuthority(c *gin.Context) {
 // @Security ApiKeyAuth
 // @accept application/json
 // @Produce application/json
-// @Param data body model.SysBaseMenu true "路由path, 父菜单ID, 路由name, 对应前端文件路径, 排序标记"
+// @Param data body postgres.SysBaseMenu true "路由path, 父菜单ID, 路由name, 对应前端文件路径, 排序标记"
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"添加成功"}"
 // @Router /menu/addBaseMenu [post]
 func AddBaseMenu(c *gin.Context) {
-	var menu model.SysBaseMenu
+	var menu postgres.SysBaseMenu
 	_ = c.ShouldBindJSON(&menu)
 	if err := utils.Verify(menu, utils.MenuVerify); err != nil {
 		response.FailWithMessage(err.Error(), c)
@@ -160,11 +160,11 @@ func DeleteBaseMenu(c *gin.Context) {
 // @Security ApiKeyAuth
 // @accept application/json
 // @Produce application/json
-// @Param data body model.SysBaseMenu true "路由path, 父菜单ID, 路由name, 对应前端文件路径, 排序标记"
+// @Param data body postgres.SysBaseMenu true "路由path, 父菜单ID, 路由name, 对应前端文件路径, 排序标记"
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"更新成功"}"
 // @Router /menu/updateBaseMenu [post]
 func UpdateBaseMenu(c *gin.Context) {
-	var menu model.SysBaseMenu
+	var menu postgres.SysBaseMenu
 	_ = c.ShouldBindJSON(&menu)
 	if err := utils.Verify(menu, utils.MenuVerify); err != nil {
 		response.FailWithMessage(err.Error(), c)

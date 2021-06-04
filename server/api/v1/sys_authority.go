@@ -2,7 +2,6 @@ package v1
 
 import (
 	"gin-vue-admin/global"
-	"gin-vue-admin/model"
 	"gin-vue-admin/model/postgres"
 	"gin-vue-admin/model/request"
 	"gin-vue-admin/model/response"
@@ -147,7 +146,7 @@ func GetAuthorityList(c *gin.Context) {
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"设置成功"}"
 // @Router /authority/setDataAuthority [post]
 func SetDataAuthority(c *gin.Context) {
-	var auth model.SysAuthority
+	var auth postgres.SysAuthority
 	_ = c.ShouldBindJSON(&auth)
 	if err := utils.Verify(auth, utils.AuthorityIdVerify); err != nil {
 		response.FailWithMessage(err.Error(), c)

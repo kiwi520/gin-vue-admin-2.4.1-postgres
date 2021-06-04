@@ -15,10 +15,11 @@
       <el-table-column label="用户名" min-width="150" prop="userName"></el-table-column>
       <el-table-column label="昵称" min-width="150" prop="nickName"></el-table-column>
       <el-table-column label="用户角色" min-width="150">
+        <!--            v-model="scope.row.authority.authorityId"-->
         <template slot-scope="scope">
           <el-cascader
             @change="changeAuthority(scope.row)"
-            v-model="scope.row.authority.authorityId"
+            v-model="scope.row.authorityId"
             :options="authOptions"
             :show-all-levels="false"
             :props="{ checkStrictly: true,label:'authorityName',value:'authorityId',disabled:'disabled',emitPath:false}"
@@ -199,7 +200,8 @@ export default {
     async changeAuthority(row) {
       const res = await setUserAuthority({
         uuid: row.uuid,
-        authorityId: row.authority.authorityId
+        // authorityId: row.authority.authorityId
+        authorityId: row.authorityId
       });
       if (res.code == 0) {
         this.$message({ type: "success", message: "角色设置成功" });

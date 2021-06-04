@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"gin-vue-admin/global"
-	"gin-vue-admin/model"
+	"gin-vue-admin/model/postgres"
 	"gin-vue-admin/model/response"
 	"gin-vue-admin/service"
 	"gin-vue-admin/utils"
@@ -24,7 +24,7 @@ import (
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"创建成功"}"
 // @Router /autoCode/preview [post]
 func PreviewTemp(c *gin.Context) {
-	var a model.AutoCodeStruct
+	var a postgres.AutoCodeStruct
 	_ = c.ShouldBindJSON(&a)
 	if err := utils.Verify(a, utils.AutoCodeVerify); err != nil {
 		response.FailWithMessage(err.Error(), c)
@@ -48,7 +48,7 @@ func PreviewTemp(c *gin.Context) {
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"创建成功"}"
 // @Router /autoCode/createTemp [post]
 func CreateTemp(c *gin.Context) {
-	var a model.AutoCodeStruct
+	var a postgres.AutoCodeStruct
 	_ = c.ShouldBindJSON(&a)
 	if err := utils.Verify(a, utils.AutoCodeVerify); err != nil {
 		response.FailWithMessage(err.Error(), c)
@@ -64,7 +64,7 @@ func CreateTemp(c *gin.Context) {
 	}
 	err := service.CreateTemp(a)
 	if err != nil {
-		if errors.Is(err, model.AutoMoveErr) {
+		if errors.Is(err, postgres.AutoMoveErr) {
 			c.Writer.Header().Add("success", "false")
 			c.Writer.Header().Add("msgtype", "success")
 			c.Writer.Header().Add("msg", url.QueryEscape(err.Error()))

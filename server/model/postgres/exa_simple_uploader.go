@@ -1,4 +1,4 @@
-package model
+package postgres
 
 type ExaSimpleUploader struct {
 	ChunkNumber      string `json:"chunkNumber" gorm:"comment:当前切片标记"`

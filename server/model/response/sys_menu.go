@@ -1,7 +1,7 @@
 package response
 
 import (
-	"gin-vue-admin/model"
+	"gin-vue-admin/model/postgres"
 	"gin-vue-admin/model/postgres/request"
 )
 
@@ -17,9 +17,15 @@ type SysAuthorityMenusResponse struct {
 }
 
 type SysBaseMenusResponse struct {
-	Menus []model.SysBaseMenu `json:"menus"`
+	Menus []SysBaseMenu `json:"menus"`
 }
 
 type SysBaseMenuResponse struct {
-	Menu model.SysBaseMenu `json:"menu"`
+	Menu postgres.SysBaseMenu `json:"menu"`
+}
+
+
+type SysBaseMenu struct {
+	postgres.SysBaseMenu
+	Children     []SysBaseMenu          `json:"children"`
 }

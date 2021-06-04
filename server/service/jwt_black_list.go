@@ -3,7 +3,6 @@ package service
 import (
 	"errors"
 	"gin-vue-admin/global"
-	"gin-vue-admin/model"
 	"gin-vue-admin/model/postgres"
 	"gorm.io/gorm"
 	"time"
@@ -27,7 +26,7 @@ func JsonInBlacklist(jwtList postgres.JwtBlacklist) (err error) {
 //@return: bool
 
 func IsBlacklist(jwt string) bool {
-	isNotFound := errors.Is(global.GVA_DB.Where("jwt = ?", jwt).First(&model.JwtBlacklist{}).Error, gorm.ErrRecordNotFound)
+	isNotFound := errors.Is(global.GVA_DB.Where("jwt = ?", jwt).First(&postgres.JwtBlacklist{}).Error, gorm.ErrRecordNotFound)
 	return !isNotFound
 }
 

@@ -38,7 +38,7 @@
       <el-table-column type="selection" width="55"></el-table-column>
       <el-table-column label="操作人" width="140">
         <template slot-scope="scope">
-          <div>{{scope.row.user.userName}}({{scope.row.user.nickName}})</div>
+          <div>{{scope.row.username}}({{scope.row.nick_name}})</div>
         </template>
       </el-table-column>
       <el-table-column label="日期" width="180">
@@ -71,12 +71,16 @@
       <el-table-column label="响应" prop="path" width="80">
         <template slot-scope="scope">
           <div>
-            <el-popover placement="top-start" trigger="hover" v-if="scope.row.resp">
-              <div class="popover-box">
-                <pre>{{fmtBody(scope.row.resp)}}</pre>
-              </div>
+<!--            <el-popover placement="top-start" trigger="hover" v-if="scope.row.resp">-->
+<!--              <div class="popover-box">-->
+<!--                <pre>{{fmtBody(scope.row.resp)}}</pre>-->
+<!--              </div>-->
+<!--              <i class="el-icon-view" slot="reference"></i>-->
+<!--            </el-popover>-->
+
+            <div v-if="scope.row.resp" @click="respBody(scope.row.ID)">
               <i class="el-icon-view" slot="reference"></i>
-            </el-popover>
+            </div>
             <span v-else>无</span>
           </div>
         </template>
@@ -104,6 +108,10 @@
       @size-change="handleSizeChange"
       layout="total, sizes, prev, pager, next, jumper"
     ></el-pagination>
+
+    <el-dialog title="收货地址" :visible.sync="dialogTableVisible">
+      <pre>{{resp}}</pre>
+    </el-dialog>
   </div>
 </template>
 
@@ -111,7 +119,8 @@
 import {
   deleteSysOperationRecord,
   getSysOperationRecordList,
-  deleteSysOperationRecordByIds
+  deleteSysOperationRecordByIds,
+  SysOperationRecordResponse
 } from "@/api/sysOperationRecord"; //  此处请自行替换地址
 import { formatTimeToStr } from "@/utils/date";
 import infoList from "@/mixins/infoList";
@@ -123,7 +132,9 @@ export default {
     return {
       listApi: getSysOperationRecordList,
       dialogFormVisible: false,
+      dialogTableVisible: false,
       type: "",
+      resp:"",
       deleteVisible: false,
       multipleSelection: [],
       formData: {
@@ -204,6 +215,15 @@ export default {
       } catch (err) {
         return value;
       }
+    },
+    respBody(id){
+      this.OperationRecordResponse(id)
+    },
+    async OperationRecordResponse(id){
+      const res = await SysOperationRecordResponse({id: id})
+
+      this.resp = JSON.parse(res.data)
+      this.dialogTableVisible =true
     }
   },
   created() {
@@ -213,6 +233,13 @@ export default {
 </script>
 
 <style lang="scss">
+
+pre {
+  white-space: pre-wrap; /*css-3*/
+  white-space: -moz-pre-wrap; /*Mozilla,since1999*/
+  white-space: -o-pre-wrap; /*Opera7*/
+  word-wrap: break-word; /*InternetExplorer5.5+*/
+}
 .table-expand {
   padding-left: 60px;
   font-size: 0;

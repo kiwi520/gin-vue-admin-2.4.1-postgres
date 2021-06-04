@@ -1,11 +1,13 @@
 package response
 
-import "gin-vue-admin/model"
+import (
+	"gin-vue-admin/model/postgres"
+)
 
 type SysAPIResponse struct {
-	Api model.SysApi `json:"api"`
+	Api postgres.SysApi `json:"api"`
 }
 
 type SysAPIListResponse struct {
-	Apis []model.SysApi `json:"apis"`
+	Apis []postgres.SysApi `json:"apis"`
 }

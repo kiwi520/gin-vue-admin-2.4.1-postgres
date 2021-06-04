@@ -1,4 +1,4 @@
-package model
+package postgres
 
 type ExcelInfo struct {
 	FileName string        `json:"fileName"`

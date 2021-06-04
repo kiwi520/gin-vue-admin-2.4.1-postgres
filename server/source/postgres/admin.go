@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"gin-vue-admin/global"
-	"gin-vue-admin/model"
 	"gin-vue-admin/model/postgres"
 	"github.com/gookit/color"
 	uuid "github.com/satori/go.uuid"
@@ -22,7 +21,7 @@ var admins = []postgres.SysUser{
 //@description: sys_users 表数据初始化
 func (a *admin) Init() error {
 	return global.GVA_DB.Transaction(func(tx *gorm.DB) error {
-		if tx.Where("id IN ?", []int{1, 2}).Find(&[]model.SysUser{}).RowsAffected == 2 {
+		if tx.Where("id IN ?", []int{1, 2}).Find(&[]postgres.SysUser{}).RowsAffected == 2 {
 			color.Danger.Println("\n[Postgres] --> sys_users 表的初始数据已存在!")
 			return nil
 		}

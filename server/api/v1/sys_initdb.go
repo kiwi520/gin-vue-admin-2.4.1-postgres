@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"fmt"
 	"gin-vue-admin/global"
 	"gin-vue-admin/model/request"
 	"gin-vue-admin/model/response"
@@ -48,6 +49,10 @@ func CheckDB(c *gin.Context) {
 	if !global.GVA_MIGRATE {
 		global.GVA_MIGRATE = CheckInit()
 	}
+
+	fmt.Println("global.GVA_MIGRATE")
+	fmt.Println(global.GVA_MIGRATE)
+	fmt.Println("global.GVA_MIGRATE")
 
 	//if global.GVA_DB != nil {
 	if global.GVA_MIGRATE {

@@ -2,7 +2,7 @@ package service
 
 import (
 	"gin-vue-admin/global"
-	"gin-vue-admin/model"
+	"gin-vue-admin/model/postgres"
 	"gin-vue-admin/model/request"
 )
 
@@ -12,7 +12,7 @@ import (
 //@param: e model.ExaCustomer
 //@return: err error
 
-func CreateExaCustomer(e model.ExaCustomer) (err error) {
+func CreateExaCustomer(e postgres.ExaCustomer) (err error) {
 	err = global.GVA_DB.Create(&e).Error
 	return err
 }
@@ -23,7 +23,7 @@ func CreateExaCustomer(e model.ExaCustomer) (err error) {
 //@param: e model.ExaCustomer
 //@return: err error
 
-func DeleteExaCustomer(e model.ExaCustomer) (err error) {
+func DeleteExaCustomer(e postgres.ExaCustomer) (err error) {
 	err = global.GVA_DB.Delete(&e).Error
 	return err
 }
@@ -34,7 +34,7 @@ func DeleteExaCustomer(e model.ExaCustomer) (err error) {
 //@param: e *model.ExaCustomer
 //@return: err error
 
-func UpdateExaCustomer(e *model.ExaCustomer) (err error) {
+func UpdateExaCustomer(e *postgres.ExaCustomer) (err error) {
 	err = global.GVA_DB.Save(e).Error
 	return err
 }
@@ -45,7 +45,7 @@ func UpdateExaCustomer(e *model.ExaCustomer) (err error) {
 //@param: id uint
 //@return: err error, customer model.ExaCustomer
 
-func GetExaCustomer(id uint) (err error, customer model.ExaCustomer) {
+func GetExaCustomer(id uint) (err error, customer postgres.ExaCustomer) {
 	err = global.GVA_DB.Where("id = ?", id).First(&customer).Error
 	return
 }
@@ -59,15 +59,15 @@ func GetExaCustomer(id uint) (err error, customer model.ExaCustomer) {
 func GetCustomerInfoList(sysUserAuthorityID string, info request.PageInfo) (err error, list interface{}, total int64) {
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
-	db := global.GVA_DB.Model(&model.ExaCustomer{})
-	var a model.SysAuthority
+	db := global.GVA_DB.Model(&postgres.ExaCustomer{})
+	var a postgres.SysAuthority
 	a.AuthorityId = sysUserAuthorityID
-	err, auth := GetAuthorityInfo(a)
+	//err, auth := GetAuthorityInfo(a)
 	var dataId []string
-	for _, v := range auth.DataAuthorityId {
-		dataId = append(dataId, v.AuthorityId)
-	}
-	var CustomerList []model.ExaCustomer
+	//for _, v := range auth.DataAuthorityId {
+	//	dataId = append(dataId, v.AuthorityId)
+	//}
+	var CustomerList []postgres.ExaCustomer
 	err = db.Where("sys_user_authority_id in ?", dataId).Count(&total).Error
 	if err != nil {
 		return err, CustomerList, total

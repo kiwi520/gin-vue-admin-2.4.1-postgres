@@ -2,7 +2,7 @@ package v1
 
 import (
 	"gin-vue-admin/global"
-	"gin-vue-admin/model"
+	"gin-vue-admin/model/postgres"
 	"gin-vue-admin/model/request"
 	"gin-vue-admin/model/response"
 	"gin-vue-admin/service"
@@ -16,11 +16,11 @@ import (
 // @Security ApiKeyAuth
 // @accept application/json
 // @Produce application/json
-// @Param data body model.SysApi true "api路径, api中文描述, api组, 方法"
+// @Param data body postgres.SysApi true "api路径, api中文描述, api组, 方法"
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"创建成功"}"
 // @Router /api/createApi [post]
 func CreateApi(c *gin.Context) {
-	var api model.SysApi
+	var api postgres.SysApi
 	_ = c.ShouldBindJSON(&api)
 	if err := utils.Verify(api, utils.ApiVerify); err != nil {
 		response.FailWithMessage(err.Error(), c)
@@ -39,13 +39,13 @@ func CreateApi(c *gin.Context) {
 // @Security ApiKeyAuth
 // @accept application/json
 // @Produce application/json
-// @Param data body model.SysApi true "ID"
+// @Param data body postgres.SysApi true "ID"
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"删除成功"}"
 // @Router /api/deleteApi [post]
 func DeleteApi(c *gin.Context) {
-	var api model.SysApi
+	var api postgres.SysApi
 	_ = c.ShouldBindJSON(&api)
-	if err := utils.Verify(api.GVA_MODEL, utils.IdVerify); err != nil {
+	if err := utils.Verify(api.Model, utils.IdVerify); err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
@@ -114,11 +114,11 @@ func GetApiById(c *gin.Context) {
 // @Security ApiKeyAuth
 // @accept application/json
 // @Produce application/json
-// @Param data body model.SysApi true "api路径, api中文描述, api组, 方法"
+// @Param data body postgres.SysApi true "api路径, api中文描述, api组, 方法"
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"修改成功"}"
 // @Router /api/updateApi [post]
 func UpdateApi(c *gin.Context) {
-	var api model.SysApi
+	var api postgres.SysApi
 	_ = c.ShouldBindJSON(&api)
 	if err := utils.Verify(api, utils.ApiVerify); err != nil {
 		response.FailWithMessage(err.Error(), c)

@@ -1,12 +1,12 @@
 package request
 
 import (
-	"gin-vue-admin/model"
+	"gin-vue-admin/model/postgres"
 )
 
 // Add menu authority info structure
 type AddMenuAuthorityInfo struct {
-	Menus       []model.SysBaseMenu
+	Menus       []postgres.SysBaseMenu
 	AuthorityId string
 }
 

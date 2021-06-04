@@ -5,15 +5,14 @@ import (
 	"fmt"
 	"gin-vue-admin/config"
 	"gin-vue-admin/global"
-	"gin-vue-admin/model"
-	pgModel "gin-vue-admin/model/postgres"
+	"gin-vue-admin/model/postgres"
+	source "gin-vue-admin/source/postgres"
 	"gin-vue-admin/model/request"
-	"gin-vue-admin/source"
 	sourcepostgres "gin-vue-admin/source/postgres"
 	"gin-vue-admin/utils"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
-	"gorm.io/driver/postgres"
+	 gp "gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"path/filepath"
 )
@@ -52,7 +51,7 @@ func createTable(dsn string, driver string, createSql string) error {
 	return err
 }
 
-func initDB(InitDBFunctions ...model.InitDBFunc) (err error) {
+func initDB(InitDBFunctions ...postgres.InitDBFunc) (err error) {
 	for _, v := range InitDBFunctions {
 		err = v.Init()
 		if err != nil {
@@ -66,7 +65,7 @@ func initDB(InitDBFunctions ...model.InitDBFunc) (err error) {
 //@function: InitDB
 //@description: 创建数据库并初始化
 //@param: authorityId string
-//@return: err error, treeMap map[string][]model.SysMenu
+//@return: err error, treeMap map[string][]postgres.SysMenu
 
 func InitDB(conf request.InitDB) error {
     var err error
@@ -84,7 +83,7 @@ func InitDB(conf request.InitDB) error {
 
 func InitPostgres(conf request.InitDB) error {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable TimeZone=Asia/Shanghai", conf.Host,conf.UserName, conf.Password, conf.DBName, conf.Port)
-	if db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+	if db, err := gorm.Open(gp.Open(dsn), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
 	}); err != nil {
 		return err
@@ -96,24 +95,24 @@ func InitPostgres(conf request.InitDB) error {
 	}
 
 	var err = global.GVA_DB.AutoMigrate(
-		pgModel.SysUser{},
-		pgModel.SysAuthority{},
-		pgModel.SysUserAuthority{},
-		pgModel.DataAuthorityId{},
-		model.SysApi{},
-		pgModel.SysBaseMenu{},
-		pgModel.SysMenu{},
-		pgModel.SysBaseMenuParameter{},
-		model.JwtBlacklist{},
-		model.SysDictionary{},
-		model.SysDictionaryDetail{},
-		model.ExaFileUploadAndDownload{},
-		pgModel.ExaFile{},
-		pgModel.ExaFileChunk{},
-		model.ExaSimpleUploader{},
-		model.ExaCustomer{},
-		pgModel.SysOperationRecord{},
-		pgModel.SysMigration{},
+		postgres.SysUser{},
+		postgres.SysAuthority{},
+		postgres.SysUserAuthority{},
+		postgres.DataAuthorityId{},
+		postgres.SysApi{},
+		postgres.SysBaseMenu{},
+		postgres.SysMenu{},
+		postgres.SysBaseMenuParameter{},
+		postgres.JwtBlacklist{},
+		postgres.SysDictionary{},
+		postgres.SysDictionaryDetail{},
+		postgres.ExaFileUploadAndDownload{},
+		postgres.ExaFile{},
+		postgres.ExaFileChunk{},
+		postgres.ExaSimpleUploader{},
+		postgres.ExaCustomer{},
+		postgres.SysOperationRecord{},
+		postgres.SysMigration{},
 	)
 
 	if err != nil {
@@ -203,20 +202,20 @@ func InitMysql(conf request.InitDB) error {
 	}
 
 	err := global.GVA_DB.AutoMigrate(
-		model.SysUser{},
-		model.SysAuthority{},
-		model.SysApi{},
-		model.SysBaseMenu{},
-		model.SysBaseMenuParameter{},
-		model.JwtBlacklist{},
-		model.SysDictionary{},
-		model.SysDictionaryDetail{},
-		model.ExaFileUploadAndDownload{},
-		model.ExaFile{},
-		model.ExaFileChunk{},
-		model.ExaSimpleUploader{},
-		model.ExaCustomer{},
-		model.SysOperationRecord{},
+		postgres.SysUser{},
+		postgres.SysAuthority{},
+		postgres.SysApi{},
+		postgres.SysBaseMenu{},
+		postgres.SysBaseMenuParameter{},
+		postgres.JwtBlacklist{},
+		postgres.SysDictionary{},
+		postgres.SysDictionaryDetail{},
+		postgres.ExaFileUploadAndDownload{},
+		postgres.ExaFile{},
+		postgres.ExaFileChunk{},
+		postgres.ExaSimpleUploader{},
+		postgres.ExaCustomer{},
+		postgres.SysOperationRecord{},
 	)
 	if err != nil {
 		return err

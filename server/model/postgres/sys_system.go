@@ -1,4 +1,4 @@
-package model
+package postgres
 
 import (
 	"gin-vue-admin/config"

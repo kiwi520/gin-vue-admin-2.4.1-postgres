@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"gin-vue-admin/global"
-	"gin-vue-admin/model"
+	"gin-vue-admin/model/postgres"
 	"gin-vue-admin/model/request"
 	"gin-vue-admin/service"
 	"gin-vue-admin/utils"
@@ -28,7 +28,7 @@ func ErrorToEmail() gin.HandlerFunc {
 			username = user.Username
 		}
 		body, _ := ioutil.ReadAll(c.Request.Body)
-		record := model.SysOperationRecord{
+		record := postgres.SysOperationRecord{
 			Ip:     c.ClientIP(),
 			Method: c.Request.Method,
 			Path:   c.Request.URL.Path,

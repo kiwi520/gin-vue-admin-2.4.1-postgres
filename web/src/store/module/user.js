@@ -42,8 +42,14 @@ export const user = {
         }
     },
     actions: {
-        async LoginIn({ commit, dispatch, rootGetters, getters }, loginInfo) {
+        async LoginIn({ commit, dispatch, rootGetters }, loginInfo) {
             const res = await login(loginInfo)
+            // console.log('res.data')
+            // console.log(res.data)
+            // console.log(res.data.user)
+            // console.log(res.data.user.authority)
+            // console.log(res.data.user.authority.defaultRouter)
+            // console.log('res.data')
             if (res.code == 0) {
                 commit('setUserInfo', res.data.user)
                 commit('setToken', res.data.token)
@@ -55,7 +61,8 @@ export const user = {
                 // if (redirect) {
                 //     router.push({ path: redirect })
                 // } else {
-                    router.push({ name: getters["userInfo"].authority.defaultRouter })
+                //     router.push({ name: getters["userInfo"].authority.defaultRouter })
+                    router.push({ name: res.data.user.authority.defaultRouter })
                 // }
                 return true
             }

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"gin-vue-admin/global"
-	"gin-vue-admin/model"
+	"gin-vue-admin/model/postgres"
 	"gin-vue-admin/model/request"
 	"strings"
 
@@ -24,7 +24,7 @@ func UpdateCasbin(authorityId string, casbinInfos []request.CasbinInfo) error {
 	ClearCasbin(0, authorityId)
 	rules := [][]string{}
 	for _, v := range casbinInfos {
-		cm := model.CasbinModel{
+		cm := postgres.CasbinModel{
 			Ptype:       "p",
 			AuthorityId: authorityId,
 			Path:        v.Path,
@@ -47,7 +47,7 @@ func UpdateCasbin(authorityId string, casbinInfos []request.CasbinInfo) error {
 //@return: error
 
 func UpdateCasbinApi(oldPath string, newPath string, oldMethod string, newMethod string) error {
-	err := global.GVA_DB.Table("casbin_rule").Model(&model.CasbinModel{}).Where("v1 = ? AND v2 = ?", oldPath, oldMethod).Updates(map[string]interface{}{
+	err := global.GVA_DB.Table("casbin_rule").Model(&postgres.CasbinModel{}).Where("v1 = ? AND v2 = ?", oldPath, oldMethod).Updates(map[string]interface{}{
 		"v1": newPath,
 		"v2": newMethod,
 	}).Error

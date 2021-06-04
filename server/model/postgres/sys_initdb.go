@@ -1,4 +1,4 @@
-package model
+package postgres
 
 type InitDBFunc interface {
 	Init() (err error)

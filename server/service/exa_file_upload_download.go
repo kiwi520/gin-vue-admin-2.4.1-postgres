@@ -3,7 +3,7 @@ package service
 import (
 	"errors"
 	"gin-vue-admin/global"
-	"gin-vue-admin/model"
+	"gin-vue-admin/model/postgres"
 	"gin-vue-admin/model/request"
 	"gin-vue-admin/utils/upload"
 	"mime/multipart"
@@ -16,7 +16,7 @@ import (
 //@param: file model.ExaFileUploadAndDownload
 //@return: error
 
-func Upload(file model.ExaFileUploadAndDownload) error {
+func Upload(file postgres.ExaFileUploadAndDownload) error {
 	return global.GVA_DB.Create(&file).Error
 }
 
@@ -26,8 +26,8 @@ func Upload(file model.ExaFileUploadAndDownload) error {
 //@param: id uint
 //@return: error, model.ExaFileUploadAndDownload
 
-func FindFile(id uint) (error, model.ExaFileUploadAndDownload) {
-	var file model.ExaFileUploadAndDownload
+func FindFile(id uint) (error, postgres.ExaFileUploadAndDownload) {
+	var file postgres.ExaFileUploadAndDownload
 	err := global.GVA_DB.Where("id = ?", id).First(&file).Error
 	return err, file
 }
@@ -38,8 +38,8 @@ func FindFile(id uint) (error, model.ExaFileUploadAndDownload) {
 //@param: file model.ExaFileUploadAndDownload
 //@return: err error
 
-func DeleteFile(file model.ExaFileUploadAndDownload) (err error) {
-	var fileFromDb model.ExaFileUploadAndDownload
+func DeleteFile(file postgres.ExaFileUploadAndDownload) (err error) {
+	var fileFromDb postgres.ExaFileUploadAndDownload
 	err, fileFromDb = FindFile(file.ID)
 	oss := upload.NewOss()
 	if err = oss.DeleteFile(fileFromDb.Key); err != nil {
@@ -59,7 +59,7 @@ func GetFileRecordInfoList(info request.PageInfo) (err error, list interface{}, 
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
 	db := global.GVA_DB
-	var fileLists []model.ExaFileUploadAndDownload
+	var fileLists []postgres.ExaFileUploadAndDownload
 	err = db.Find(&fileLists).Count(&total).Error
 	err = db.Limit(limit).Offset(offset).Order("updated_at desc").Find(&fileLists).Error
 	return err, fileLists, total
@@ -71,7 +71,7 @@ func GetFileRecordInfoList(info request.PageInfo) (err error, list interface{}, 
 //@param: header *multipart.FileHeader, noSave string
 //@return: err error, file model.ExaFileUploadAndDownload
 
-func UploadFile(header *multipart.FileHeader, noSave string) (err error, file model.ExaFileUploadAndDownload) {
+func UploadFile(header *multipart.FileHeader, noSave string) (err error, file postgres.ExaFileUploadAndDownload) {
 	oss := upload.NewOss()
 	filePath, key, uploadErr := oss.UploadFile(header)
 	if uploadErr != nil {
@@ -79,7 +79,7 @@ func UploadFile(header *multipart.FileHeader, noSave string) (err error, file mo
 	}
 	if noSave == "0" {
 		s := strings.Split(header.Filename, ".")
-		f := model.ExaFileUploadAndDownload{
+		f := postgres.ExaFileUploadAndDownload{
 			Url:  filePath,
 			Name: header.Filename,
 			Tag:  s[len(s)-1],

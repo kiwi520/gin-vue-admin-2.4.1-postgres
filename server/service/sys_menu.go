@@ -3,10 +3,10 @@ package service
 import (
 	"errors"
 	"gin-vue-admin/global"
-	"gin-vue-admin/model"
 	"gin-vue-admin/model/postgres"
 	req "gin-vue-admin/model/postgres/request"
 	"gin-vue-admin/model/request"
+	"gin-vue-admin/model/response"
 	"gorm.io/gorm"
 	"strconv"
 )
@@ -15,11 +15,11 @@ import (
 //@function: getMenuTreeMap
 //@description: 获取路由总树map
 //@param: authorityId string
-//@return: err error, treeMap map[string][]model.SysMenu
+//@return: err error, treeMap map[string][]postgres.SysMenu
 
 func getMenuTreeMap(authorityId string) (err error, treeMap map[int][]req.MenuList) {
-	//var allMenus []model.SysMenu
-	//treeMap = make(map[string][]model.SysMenu)
+	//var allMenus []postgres.SysMenu
+	//treeMap = make(map[string][]postgres.SysMenu)
 	//err = global.GVA_DB.Where("authority_id = ?", authorityId).Order("sort").Preload("Parameters").Find(&allMenus).Error
 	//for _, v := range allMenus {
 	//	treeMap[v.ParentId] = append(treeMap[v.ParentId], v)
@@ -40,7 +40,7 @@ func getMenuTreeMap(authorityId string) (err error, treeMap map[int][]req.MenuLi
 //@function: GetMenuTree
 //@description: 获取动态菜单树
 //@param: authorityId string
-//@return: err error, menus []model.SysMenu
+//@return: err error, menus []postgres.SysMenu
 
 func GetMenuTree(authorityId string) (err error, menus []req.MenuList) {
 	err, menuTree := getMenuTreeMap(authorityId)
@@ -58,7 +58,7 @@ func GetMenuTree(authorityId string) (err error, menus []req.MenuList) {
 //@author: [piexlmax](https://github.com/piexlmax)
 //@function: getChildrenList
 //@description: 获取子菜单
-//@param: menu *model.SysMenu, treeMap map[string][]model.SysMenu
+//@param: menu *postgres.SysMenu, treeMap map[string][]postgres.SysMenu
 //@return: err error
 
 func getChildrenList(menu *req.MenuList, treeMap map[int][]req.MenuList) (err error) {
@@ -75,7 +75,7 @@ func getChildrenList(menu *req.MenuList, treeMap map[int][]req.MenuList) (err er
 //@return: err error, list interface{}, total int64
 
 func GetInfoList() (err error, list interface{}, total int64) {
-	var menuList []model.SysBaseMenu
+	var menuList []response.SysBaseMenu
 	err, treeMap := getBaseMenuTreeMap()
 	menuList = treeMap["0"]
 	for i := 0; i < len(menuList); i++ {
@@ -87,10 +87,10 @@ func GetInfoList() (err error, list interface{}, total int64) {
 //@author: [piexlmax](https://github.com/piexlmax)
 //@function: getBaseChildrenList
 //@description: 获取菜单的子菜单
-//@param: menu *model.SysBaseMenu, treeMap map[string][]model.SysBaseMenu
+//@param: menu *postgres.SysBaseMenu, treeMap map[string][]postgres.SysBaseMenu
 //@return: err error
 
-func getBaseChildrenList(menu *model.SysBaseMenu, treeMap map[string][]model.SysBaseMenu) (err error) {
+func getBaseChildrenList(menu *response.SysBaseMenu, treeMap map[string][]response.SysBaseMenu) (err error) {
 	menu.Children = treeMap[strconv.Itoa(int(menu.ID))]
 	for i := 0; i < len(menu.Children); i++ {
 		err = getBaseChildrenList(&menu.Children[i], treeMap)
@@ -101,11 +101,11 @@ func getBaseChildrenList(menu *model.SysBaseMenu, treeMap map[string][]model.Sys
 //@author: [piexlmax](https://github.com/piexlmax)
 //@function: AddBaseMenu
 //@description: 添加基础路由
-//@param: menu model.SysBaseMenu
+//@param: menu postgres.SysBaseMenu
 //@return: err error
 
-func AddBaseMenu(menu model.SysBaseMenu) error {
-	if !errors.Is(global.GVA_DB.Where("name = ?", menu.Name).First(&model.SysBaseMenu{}).Error, gorm.ErrRecordNotFound) {
+func AddBaseMenu(menu postgres.SysBaseMenu) error {
+	if !errors.Is(global.GVA_DB.Where("name = ?", menu.Name).First(&postgres.SysBaseMenu{}).Error, gorm.ErrRecordNotFound) {
 		return errors.New("存在重复name，请修改name")
 	}
 	return global.GVA_DB.Create(&menu).Error
@@ -114,14 +114,34 @@ func AddBaseMenu(menu model.SysBaseMenu) error {
 //@author: [piexlmax](https://github.com/piexlmax)
 //@function: getBaseMenuTreeMap
 //@description: 获取路由总树map
-//@return: err error, treeMap map[string][]model.SysBaseMenu
+//@return: err error, treeMap map[string][]postgres.SysBaseMenu
 
-func getBaseMenuTreeMap() (err error, treeMap map[string][]model.SysBaseMenu) {
-	var allMenus []model.SysBaseMenu
-	treeMap = make(map[string][]model.SysBaseMenu)
-	err = global.GVA_DB.Order("sort").Preload("Parameters").Find(&allMenus).Error
+func getBaseMenuTreeMap() (err error, treeMap map[string][]response.SysBaseMenu) {
+	var allMenus []postgres.SysBaseMenu
+	treeMap = make(map[string][]response.SysBaseMenu)
+	//err = global.GVA_DB.Order("sort").Preload("Parameters").Find(&allMenus).Error
+	err = global.GVA_DB.Order("sort").Find(&allMenus).Error
 	for _, v := range allMenus {
-		treeMap[v.ParentId] = append(treeMap[v.ParentId], v)
+		var menu response.SysBaseMenu
+		menu.ID = v.ID
+		menu.CreatedAt = v.CreatedAt
+		menu.MenuLevel = v.MenuLevel
+		menu.Path = v.Path
+		menu.ParentId = v.ParentId
+		menu.Name = v.Name
+		menu.Hidden = v.Hidden
+		menu.Component = v.Component
+		menu.Sort = v.Sort
+		menu.Meta = v.Meta
+		//MenuLevel     uint   `json:"-" gorm:"type:int;comment:菜单等级ID"`
+		//ParentId      string `json:"parentId" gorm:"comment:父菜单ID"`
+		//Path          string `json:"path" gorm:"comment:路由path"`
+		//Name          string `json:"name" gorm:"comment:路由name"`
+		//Hidden        bool   `json:"hidden" gorm:"comment:是否在列表隐藏"`
+		//Component     string `json:"component" gorm:"comment:对应前端文件路径"`
+		//Sort          int    `json:"sort" gorm:"type:int;comment:排序标记"`
+		//Meta          `json:"meta" gorm:"comment:附加属性"`
+		treeMap[v.ParentId] = append(treeMap[v.ParentId], menu)
 	}
 	return err, treeMap
 }
@@ -129,9 +149,9 @@ func getBaseMenuTreeMap() (err error, treeMap map[string][]model.SysBaseMenu) {
 //@author: [piexlmax](https://github.com/piexlmax)
 //@function: GetBaseMenuTree
 //@description: 获取基础路由树
-//@return: err error, menus []model.SysBaseMenu
+//@return: err error, menus []postgres.SysBaseMenu
 
-func GetBaseMenuTree() (err error, menus []model.SysBaseMenu) {
+func GetBaseMenuTree() (err error, menus []response.SysBaseMenu) {
 	err, treeMap := getBaseMenuTreeMap()
 	menus = treeMap["0"]
 	for i := 0; i < len(menus); i++ {
@@ -143,11 +163,11 @@ func GetBaseMenuTree() (err error, menus []model.SysBaseMenu) {
 //@author: [piexlmax](https://github.com/piexlmax)
 //@function: AddMenuAuthority
 //@description: 为角色增加menu树
-//@param: menus []model.SysBaseMenu, authorityId string
+//@param: menus []postgres.SysBaseMenu, authorityId string
 //@return: err error
 
 func AddMenuAuthority(menu req.AddMenuAuthorityInfo) (err error) {
-	var auth model.SysAuthority
+	var auth postgres.SysAuthority
 	auth.AuthorityId = menu.AuthorityId
 	//auth.SysBaseMenus = menus
 	authorityId,_:=strconv.Atoi(menu.AuthorityId)
@@ -167,7 +187,7 @@ func AddMenuAuthority(menu req.AddMenuAuthorityInfo) (err error) {
 //@function: GetMenuAuthority
 //@description: 查看当前角色树
 //@param: info *request.GetAuthorityId
-//@return: err error, menus []model.SysMenu
+//@return: err error, menus []postgres.SysMenu
 
 func GetMenuAuthority(info *request.GetAuthorityId) (err error, menus []req.AuthorityMenuList) {
 	err = global.GVA_DB.Table("sys_authority_menus").Where("sys_authority_authority_id = ? ", info.AuthorityId).Find(&menus).Error

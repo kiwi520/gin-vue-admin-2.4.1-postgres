@@ -50,10 +50,11 @@ export default {
   data() {
     return {
       sqlType: [
+        //  {
+        //   value: 'mysql',
+        //   label: 'mysql'
+        // },
         {
-          value: 'mysql',
-          label: 'mysql'
-        }, {
           value: 'postgres',
           label: 'postgres'
         },

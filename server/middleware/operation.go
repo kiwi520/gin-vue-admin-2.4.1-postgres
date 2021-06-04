@@ -3,7 +3,7 @@ package middleware
 import (
 	"bytes"
 	"gin-vue-admin/global"
-	"gin-vue-admin/model"
+	"gin-vue-admin/model/postgres"
 	"gin-vue-admin/model/request"
 	"gin-vue-admin/service"
 	"github.com/gin-gonic/gin"
@@ -37,7 +37,7 @@ func OperationRecord() gin.HandlerFunc {
 			}
 			userId = id
 		}
-		record := model.SysOperationRecord{
+		record := postgres.SysOperationRecord{
 			Ip:     c.ClientIP(),
 			Method: c.Request.Method,
 			Path:   c.Request.URL.Path,

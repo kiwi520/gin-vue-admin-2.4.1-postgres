@@ -3,7 +3,7 @@ package service
 import (
 	"errors"
 	"gin-vue-admin/global"
-	"gin-vue-admin/model"
+	"gin-vue-admin/model/postgres"
 	"gin-vue-admin/model/request"
 
 	"gorm.io/gorm"
@@ -15,8 +15,8 @@ import (
 //@param: api model.SysApi
 //@return: err error
 
-func CreateApi(api model.SysApi) (err error) {
-	if !errors.Is(global.GVA_DB.Where("path = ? AND method = ?", api.Path, api.Method).First(&model.SysApi{}).Error, gorm.ErrRecordNotFound) {
+func CreateApi(api postgres.SysApi) (err error) {
+	if !errors.Is(global.GVA_DB.Where("path = ? AND method = ?", api.Path, api.Method).First(&postgres.SysApi{}).Error, gorm.ErrRecordNotFound) {
 		return errors.New("存在相同api")
 	}
 	return global.GVA_DB.Create(&api).Error
@@ -28,7 +28,7 @@ func CreateApi(api model.SysApi) (err error) {
 //@param: api model.SysApi
 //@return: err error
 
-func DeleteApi(api model.SysApi) (err error) {
+func DeleteApi(api postgres.SysApi) (err error) {
 	err = global.GVA_DB.Delete(&api).Error
 	ClearCasbin(1, api.Path, api.Method)
 	return err
@@ -40,11 +40,11 @@ func DeleteApi(api model.SysApi) (err error) {
 //@param: api model.SysApi, info request.PageInfo, order string, desc bool
 //@return: err error
 
-func GetAPIInfoList(api model.SysApi, info request.PageInfo, order string, desc bool) (err error, list interface{}, total int64) {
+func GetAPIInfoList(api postgres.SysApi, info request.PageInfo, order string, desc bool) (err error, list interface{}, total int64) {
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
-	db := global.GVA_DB.Model(&model.SysApi{})
-	var apiList []model.SysApi
+	db := global.GVA_DB.Model(&postgres.SysApi{})
+	var apiList []postgres.SysApi
 
 	if api.Path != "" {
 		db = db.Where("path LIKE ?", "%"+api.Path+"%")
@@ -88,7 +88,7 @@ func GetAPIInfoList(api model.SysApi, info request.PageInfo, order string, desc 
 //@description: 获取所有的api
 //@return: err error, apis []model.SysApi
 
-func GetAllApis() (err error, apis []model.SysApi) {
+func GetAllApis() (err error, apis []postgres.SysApi) {
 	err = global.GVA_DB.Find(&apis).Error
 	return
 }
@@ -99,7 +99,7 @@ func GetAllApis() (err error, apis []model.SysApi) {
 //@param: id float64
 //@return: err error, api model.SysApi
 
-func GetApiById(id float64) (err error, api model.SysApi) {
+func GetApiById(id float64) (err error, api postgres.SysApi) {
 	err = global.GVA_DB.Where("id = ?", id).First(&api).Error
 	return
 }
@@ -110,11 +110,11 @@ func GetApiById(id float64) (err error, api model.SysApi) {
 //@param: api model.SysApi
 //@return: err error
 
-func UpdateApi(api model.SysApi) (err error) {
-	var oldA model.SysApi
+func UpdateApi(api postgres.SysApi) (err error) {
+	var oldA postgres.SysApi
 	err = global.GVA_DB.Where("id = ?", api.ID).First(&oldA).Error
 	if oldA.Path != api.Path || oldA.Method != api.Method {
-		if !errors.Is(global.GVA_DB.Where("path = ? AND method = ?", api.Path, api.Method).First(&model.SysApi{}).Error, gorm.ErrRecordNotFound) {
+		if !errors.Is(global.GVA_DB.Where("path = ? AND method = ?", api.Path, api.Method).First(&postgres.SysApi{}).Error, gorm.ErrRecordNotFound) {
 			return errors.New("存在相同api路径")
 		}
 	}
@@ -138,6 +138,6 @@ func UpdateApi(api model.SysApi) (err error) {
 //@return: err error
 
 func DeleteApisByIds(ids request.IdsReq) (err error) {
-	err = global.GVA_DB.Delete(&[]model.SysApi{}, "id in ?", ids.Ids).Error
+	err = global.GVA_DB.Delete(&[]postgres.SysApi{}, "id in ?", ids.Ids).Error
 	return err
 }

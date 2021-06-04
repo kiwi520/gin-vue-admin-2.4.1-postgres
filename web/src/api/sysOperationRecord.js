@@ -47,3 +47,17 @@ export const getSysOperationRecordList = (params) => {
         params
     })
 }
+
+//@author: [granty1](https://github.com/kiwi520)
+//@author: [piexlmax](https://github.com/kiwi520)
+//@function: GetSysOperationRecordResponse
+//@description: 获取操作记录响应信息
+//@param: info request.SysOperationRecordSearch
+//@return: err error, response string
+export const SysOperationRecordResponse = (data) => {
+    return service({
+        url: "/sysOperationRecord/SysOperationRecordResponse",
+        method: 'post',
+        data: data
+    })
+}

@@ -2,10 +2,8 @@ package postgres
 
 import (
 	"gin-vue-admin/global"
-	"gin-vue-admin/model"
 	"gin-vue-admin/model/postgres"
 	"github.com/gookit/color"
-
 	"gorm.io/gorm"
 )
 
@@ -13,7 +11,7 @@ var Api = new(api)
 
 type api struct{}
 
-var apis = []model.SysApi{
+var apis = []postgres.SysApi{
 	{Path: "/base/login", Description: "用户登录",ApiGroup: "base", Method: "POST"},
 	{Path:  "/user/register", Description:  "用户注册", ApiGroup: "user", Method:"POST"},
 	{Path:  "/api/createApi",  Description: "创建api", ApiGroup: "api", Method:"POST"},
@@ -67,6 +65,7 @@ var apis = []model.SysApi{
 	{Path:  "/sysDictionary/findSysDictionary", Description: "根据ID获取字典", ApiGroup: "sysDictionary", Method:"GET"},
 	{Path:  "/sysDictionary/getSysDictionaryList", Description: "获取字典列表", ApiGroup: "sysDictionary", Method:"GET"},
 	{Path:  "/sysOperationRecord/createSysOperationRecord", Description: "新增操作记录",ApiGroup:  "sysOperationRecord", Method:"POST"},
+	{Path:  "/sysOperationRecord/SysOperationRecordResponse", Description: "查看响应信息",ApiGroup:  "sysOperationRecord", Method:"POST"},
 	{Path:  "/sysOperationRecord/deleteSysOperationRecord",Description:  "删除操作记录", ApiGroup: "sysOperationRecord", Method:"DELETE"},
 	{Path: "/sysOperationRecord/findSysOperationRecord", Description: "根据ID获取操作记录", ApiGroup: "sysOperationRecord", Method:"GET"},
 	{Path:  "/sysOperationRecord/getSysOperationRecordList", Description: "获取操作记录列表",ApiGroup:  "sysOperationRecord", Method:"GET"},

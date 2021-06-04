@@ -2,17 +2,17 @@ package service
 
 import (
 	"gin-vue-admin/global"
-	"gin-vue-admin/model"
+	"gin-vue-admin/model/postgres"
 	"gin-vue-admin/model/request"
 )
 
 //@author: [piexlmax](https://github.com/piexlmax)
 //@function: CreateSysDictionaryDetail
 //@description: 创建字典详情数据
-//@param: sysDictionaryDetail model.SysDictionaryDetail
+//@param: sysDictionaryDetail postgres.SysDictionaryDetail
 //@return: err error
 
-func CreateSysDictionaryDetail(sysDictionaryDetail model.SysDictionaryDetail) (err error) {
+func CreateSysDictionaryDetail(sysDictionaryDetail postgres.SysDictionaryDetail) (err error) {
 	err = global.GVA_DB.Create(&sysDictionaryDetail).Error
 	return err
 }
@@ -20,10 +20,10 @@ func CreateSysDictionaryDetail(sysDictionaryDetail model.SysDictionaryDetail) (e
 //@author: [piexlmax](https://github.com/piexlmax)
 //@function: DeleteSysDictionaryDetail
 //@description: 删除字典详情数据
-//@param: sysDictionaryDetail model.SysDictionaryDetail
+//@param: sysDictionaryDetail postgres.SysDictionaryDetail
 //@return: err error
 
-func DeleteSysDictionaryDetail(sysDictionaryDetail model.SysDictionaryDetail) (err error) {
+func DeleteSysDictionaryDetail(sysDictionaryDetail postgres.SysDictionaryDetail) (err error) {
 	err = global.GVA_DB.Delete(&sysDictionaryDetail).Error
 	return err
 }
@@ -31,10 +31,10 @@ func DeleteSysDictionaryDetail(sysDictionaryDetail model.SysDictionaryDetail) (e
 //@author: [piexlmax](https://github.com/piexlmax)
 //@function: UpdateSysDictionaryDetail
 //@description: 更新字典详情数据
-//@param: sysDictionaryDetail *model.SysDictionaryDetail
+//@param: sysDictionaryDetail *postgres.SysDictionaryDetail
 //@return: err error
 
-func UpdateSysDictionaryDetail(sysDictionaryDetail *model.SysDictionaryDetail) (err error) {
+func UpdateSysDictionaryDetail(sysDictionaryDetail *postgres.SysDictionaryDetail) (err error) {
 	err = global.GVA_DB.Save(sysDictionaryDetail).Error
 	return err
 }
@@ -43,9 +43,9 @@ func UpdateSysDictionaryDetail(sysDictionaryDetail *model.SysDictionaryDetail) (
 //@function: GetSysDictionaryDetail
 //@description: 根据id获取字典详情单条数据
 //@param: id uint
-//@return: err error, sysDictionaryDetail model.SysDictionaryDetail
+//@return: err error, sysDictionaryDetail postgres.SysDictionaryDetail
 
-func GetSysDictionaryDetail(id uint) (err error, sysDictionaryDetail model.SysDictionaryDetail) {
+func GetSysDictionaryDetail(id uint) (err error, sysDictionaryDetail postgres.SysDictionaryDetail) {
 	err = global.GVA_DB.Where("id = ?", id).First(&sysDictionaryDetail).Error
 	return
 }
@@ -60,8 +60,8 @@ func GetSysDictionaryDetailInfoList(info request.SysDictionaryDetailSearch) (err
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
 	// 创建db
-	db := global.GVA_DB.Model(&model.SysDictionaryDetail{})
-	var sysDictionaryDetails []model.SysDictionaryDetail
+	db := global.GVA_DB.Model(&postgres.SysDictionaryDetail{})
+	var sysDictionaryDetails []postgres.SysDictionaryDetail
 	// 如果有条件搜索 下方会自动创建搜索语句
 	if info.Label != "" {
 		db = db.Where("label LIKE ?", "%"+info.Label+"%")

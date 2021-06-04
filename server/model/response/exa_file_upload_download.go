@@ -1,7 +1,9 @@
 package response
 
-import "gin-vue-admin/model"
+import (
+	"gin-vue-admin/model/postgres"
+)
 
 type ExaFileResponse struct {
-	File model.ExaFileUploadAndDownload `json:"file"`
+	File postgres.ExaFileUploadAndDownload `json:"file"`
 }

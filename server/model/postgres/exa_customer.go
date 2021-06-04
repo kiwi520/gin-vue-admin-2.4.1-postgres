@@ -1,11 +1,11 @@
-package model
+package postgres
 
 import (
-	"gin-vue-admin/global"
+	"gorm.io/gorm"
 )
 
 type ExaCustomer struct {
-	global.GVA_MODEL
+	gorm.Model
 	CustomerName       string  `json:"customerName" form:"customerName" gorm:"comment:客户名"`
 	CustomerPhoneData  string  `json:"customerPhoneData" form:"customerPhoneData" gorm:"comment:客户手机号"`
 	SysUserID          uint    `json:"sysUserId" form:"sysUserId" gorm:"comment:管理ID"`

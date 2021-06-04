@@ -2,7 +2,7 @@ package v1
 
 import (
 	"gin-vue-admin/global"
-	"gin-vue-admin/model"
+	"gin-vue-admin/model/postgres"
 	"gin-vue-admin/model/response"
 	"gin-vue-admin/service"
 	"os"
@@ -33,11 +33,11 @@ func GetSystemConfig(c *gin.Context) {
 // @Summary 设置配置文件内容
 // @Security ApiKeyAuth
 // @Produce  application/json
-// @Param data body model.System true "设置配置文件内容"
+// @Param data body postgres.System true "设置配置文件内容"
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"设置成功"}"
 // @Router /system/setSystemConfig [post]
 func SetSystemConfig(c *gin.Context) {
-	var sys model.System
+	var sys postgres.System
 	_ = c.ShouldBindJSON(&sys)
 	if err := service.SetSystemConfig(sys); err != nil {
 		global.GVA_LOG.Error("设置失败!", zap.Any("err", err))

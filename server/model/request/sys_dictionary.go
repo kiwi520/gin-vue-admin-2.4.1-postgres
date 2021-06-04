@@ -1,8 +1,10 @@
 package request
 
-import "gin-vue-admin/model"
+import (
+	"gin-vue-admin/model/postgres"
+)
 
 type SysDictionarySearch struct {
-	model.SysDictionary
+	postgres.SysDictionary
 	PageInfo
 }

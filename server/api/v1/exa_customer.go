@@ -3,7 +3,7 @@ package v1
 import (
 	"fmt"
 	"gin-vue-admin/global"
-	"gin-vue-admin/model"
+	"gin-vue-admin/model/postgres"
 	"gin-vue-admin/model/request"
 	"gin-vue-admin/model/response"
 	"gin-vue-admin/service"
@@ -21,7 +21,7 @@ import (
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"创建成功"}"
 // @Router /customer/customer [post]
 func CreateExaCustomer(c *gin.Context) {
-	var customer model.ExaCustomer
+	var customer postgres.ExaCustomer
 	_ = c.ShouldBindJSON(&customer)
 	if err := utils.Verify(customer, utils.CustomerVerify); err != nil {
 		response.FailWithMessage(err.Error(), c)
@@ -46,9 +46,9 @@ func CreateExaCustomer(c *gin.Context) {
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"删除成功"}"
 // @Router /customer/customer [delete]
 func DeleteExaCustomer(c *gin.Context) {
-	var customer model.ExaCustomer
+	var customer postgres.ExaCustomer
 	_ = c.ShouldBindJSON(&customer)
-	if err := utils.Verify(customer.GVA_MODEL, utils.IdVerify); err != nil {
+	if err := utils.Verify(customer.Model, utils.IdVerify); err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
@@ -69,9 +69,9 @@ func DeleteExaCustomer(c *gin.Context) {
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"更新成功"}"
 // @Router /customer/customer [put]
 func UpdateExaCustomer(c *gin.Context) {
-	var customer model.ExaCustomer
+	var customer postgres.ExaCustomer
 	_ = c.ShouldBindJSON(&customer)
-	if err := utils.Verify(customer.GVA_MODEL, utils.IdVerify); err != nil {
+	if err := utils.Verify(customer.Model, utils.IdVerify); err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
@@ -96,9 +96,9 @@ func UpdateExaCustomer(c *gin.Context) {
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"获取成功"}"
 // @Router /customer/customer [get]
 func GetExaCustomer(c *gin.Context) {
-	var customer model.ExaCustomer
+	var customer postgres.ExaCustomer
 	_ = c.ShouldBindQuery(&customer)
-	if err := utils.Verify(customer.GVA_MODEL, utils.IdVerify); err != nil {
+	if err := utils.Verify(customer.Model, utils.IdVerify); err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}

@@ -2,7 +2,7 @@ package postgres
 
 import (
 	"gin-vue-admin/global"
-	"gin-vue-admin/model"
+	"gin-vue-admin/model/postgres"
 	"github.com/gookit/color"
 	"time"
 
@@ -13,7 +13,7 @@ var Authority = new(authority)
 
 type authority struct{}
 
-var authorities = []model.SysAuthority{
+var authorities = []postgres.SysAuthority{
 	{CreatedAt: time.Now(), UpdatedAt: time.Now(), AuthorityId: "888", AuthorityName: "普通用户", ParentId: "0", DefaultRouter: "dashboard"},
 	{CreatedAt: time.Now(), UpdatedAt: time.Now(), AuthorityId: "8881", AuthorityName: "普通用户子角色", ParentId: "888", DefaultRouter: "dashboard"},
 	{CreatedAt: time.Now(), UpdatedAt: time.Now(), AuthorityId: "9528", AuthorityName: "测试角色", ParentId: "0", DefaultRouter: "dashboard"},
@@ -23,7 +23,7 @@ var authorities = []model.SysAuthority{
 //@description: sys_authorities 表数据初始化
 func (a *authority) Init() error {
 	return global.GVA_DB.Transaction(func(tx *gorm.DB) error {
-		if tx.Where("authority_id IN ? ", []string{"888", "9528"}).Find(&[]model.SysAuthority{}).RowsAffected == 2 {
+		if tx.Where("authority_id IN ? ", []string{"888", "9528"}).Find(&[]postgres.SysAuthority{}).RowsAffected == 2 {
 			color.Danger.Println("\n[Postgres] --> sys_authorities 表的初始数据已存在!")
 			return nil
 		}

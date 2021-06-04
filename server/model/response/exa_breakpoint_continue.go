@@ -1,11 +1,13 @@
 package response
 
-import "gin-vue-admin/model"
+import (
+	"gin-vue-admin/model/postgres"
+)
 
 type FilePathResponse struct {
 	FilePath string `json:"filePath"`
 }
 
 type FileResponse struct {
-	File model.ExaFile `json:"file"`
+	File postgres.ExaFile `json:"file"`
 }

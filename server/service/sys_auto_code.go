@@ -3,7 +3,7 @@ package service
 import (
 	"errors"
 	"gin-vue-admin/global"
-	"gin-vue-admin/model"
+	"gin-vue-admin/model/postgres"
 	"gin-vue-admin/model/request"
 	"gin-vue-admin/utils"
 	"io/ioutil"
@@ -33,7 +33,7 @@ type tplData struct {
 //@param: model.AutoCodeStruct
 //@return: map[string]string, error
 
-func PreviewTemp(autoCode model.AutoCodeStruct) (map[string]string, error) {
+func PreviewTemp(autoCode postgres.AutoCodeStruct) (map[string]string, error) {
 	dataList, _, needMkdir, err := getNeedList(&autoCode)
 	if err != nil {
 		return nil, err
@@ -98,7 +98,7 @@ func PreviewTemp(autoCode model.AutoCodeStruct) (map[string]string, error) {
 //@param: model.AutoCodeStruct
 //@return: error
 
-func CreateTemp(autoCode model.AutoCodeStruct) (err error) {
+func CreateTemp(autoCode postgres.AutoCodeStruct) (err error) {
 	dataList, fileList, needMkdir, err := getNeedList(&autoCode)
 	if err != nil {
 		return err
@@ -268,8 +268,8 @@ func addAutoMoveFile(data *tplData) {
 //@param: a *model.AutoCodeStruct
 //@return: error
 
-func AutoCreateApi(a *model.AutoCodeStruct) (err error) {
-	var apiList = []model.SysApi{
+func AutoCreateApi(a *postgres.AutoCodeStruct) (err error) {
+	var apiList = []postgres.SysApi{
 		{
 			Path:        "/" + a.Abbreviation + "/" + "create" + a.StructName,
 			Description: "新增" + a.Description,
@@ -309,7 +309,7 @@ func AutoCreateApi(a *model.AutoCodeStruct) (err error) {
 	}
 	err = global.GVA_DB.Transaction(func(tx *gorm.DB) error {
 		for _, v := range apiList {
-			var api model.SysApi
+			var api postgres.SysApi
 			if errors.Is(tx.Where("path = ? AND method = ?", v.Path, v.Method).First(&api).Error, gorm.ErrRecordNotFound) {
 				if err := tx.Create(&v).Error; err != nil { // 遇到错误时回滚事务
 					return err
@@ -321,7 +321,7 @@ func AutoCreateApi(a *model.AutoCodeStruct) (err error) {
 	return err
 }
 
-func getNeedList(autoCode *model.AutoCodeStruct) (dataList []tplData, fileList []string, needMkdir []string, err error) {
+func getNeedList(autoCode *postgres.AutoCodeStruct) (dataList []tplData, fileList []string, needMkdir []string, err error) {
 	// 去除所有空格
 	utils.TrimSpace(autoCode)
 	for _, field := range autoCode.Fields {

@@ -3,7 +3,6 @@ package v1
 import (
 	"gin-vue-admin/global"
 	"gin-vue-admin/middleware"
-	"gin-vue-admin/model"
 	"gin-vue-admin/model/postgres"
 	"gin-vue-admin/model/request"
 	"gin-vue-admin/model/response"
@@ -30,12 +29,12 @@ func Login(c *gin.Context) {
 		return
 	}
 	if store.Verify(L.CaptchaId, L.Captcha, true) {
-		U := &model.SysUser{Username: L.Username, Password: L.Password}
-		if err, user := service.Login(U); err != nil {
+		U := &postgres.SysUser{Username: L.Username, Password: L.Password}
+		if user,err := service.Login(U); err != nil {
 			global.GVA_LOG.Error("登陆失败! 用户名不存在或者密码错误", zap.Any("err", err))
 			response.FailWithMessage("用户名不存在或者密码错误", c)
 		} else {
-			tokenNext(c, *user)
+			tokenNext(c, user)
 		}
 	} else {
 		response.FailWithMessage("验证码错误", c)
@@ -43,7 +42,7 @@ func Login(c *gin.Context) {
 }
 
 // 登录以后签发jwt
-func tokenNext(c *gin.Context, user model.SysUser) {
+func tokenNext(c *gin.Context, user response.User) {
 	j := &middleware.JWT{SigningKey: []byte(global.GVA_CONFIG.JWT.SigningKey)} // 唯一签名
 	claims := request.CustomClaims{
 		UUID:        user.UUID,
@@ -108,7 +107,7 @@ func tokenNext(c *gin.Context, user model.SysUser) {
 // @Tags SysUser
 // @Summary 用户注册账号
 // @Produce  application/json
-// @Param data body model.SysUser true "用户名, 昵称, 密码, 角色ID"
+// @Param data body postgres.SysUser true "用户名, 昵称, 密码, 角色ID"
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"注册成功"}"
 // @Router /user/register [post]
 func Register(c *gin.Context) {
@@ -118,7 +117,7 @@ func Register(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	user := &model.SysUser{Username: R.Username, NickName: R.NickName, Password: R.Password, HeaderImg: R.HeaderImg, AuthorityId: R.AuthorityId}
+	user := &postgres.SysUser{Username: R.Username, NickName: R.NickName, Password: R.Password, HeaderImg: R.HeaderImg, AuthorityId: R.AuthorityId}
 	err, userReturn := service.Register(*user)
 	if err != nil {
 		global.GVA_LOG.Error("注册失败", zap.Any("err", err))
@@ -142,7 +141,7 @@ func ChangePassword(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	U := &model.SysUser{Username: user.Username, Password: user.Password}
+	U := &postgres.SysUser{Username: user.Username, Password: user.Password}
 	if err, _ := service.ChangePassword(U, user.NewPassword); err != nil {
 		global.GVA_LOG.Error("修改失败", zap.Any("err", err))
 		response.FailWithMessage("修改失败，原密码与当前账户不符", c)
@@ -235,11 +234,11 @@ func DeleteUser(c *gin.Context) {
 // @Security ApiKeyAuth
 // @accept application/json
 // @Produce application/json
-// @Param data body model.SysUser true "ID, 用户名, 昵称, 头像链接"
+// @Param data body postgres.SysUser true "ID, 用户名, 昵称, 头像链接"
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"设置成功"}"
 // @Router /user/setUserInfo [put]
 func SetUserInfo(c *gin.Context) {
-	var user model.SysUser
+	var user postgres.SysUser
 	_ = c.ShouldBindJSON(&user)
 	if err := utils.Verify(user, utils.IdVerify); err != nil {
 		response.FailWithMessage(err.Error(), c)

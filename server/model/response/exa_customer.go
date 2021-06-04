@@ -1,7 +1,9 @@
 package response
 
-import "gin-vue-admin/model"
+import (
+	"gin-vue-admin/model/postgres"
+)
 
 type ExaCustomerResponse struct {
-	Customer model.ExaCustomer `json:"customer"`
+	Customer postgres.ExaCustomer `json:"customer"`
 }

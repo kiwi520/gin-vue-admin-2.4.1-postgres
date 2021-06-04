@@ -3,7 +3,6 @@ package service
 import (
 	"errors"
 	"gin-vue-admin/global"
-	"gin-vue-admin/model"
 	"gin-vue-admin/model/postgres"
 	req "gin-vue-admin/model/postgres/request"
 	"gin-vue-admin/model/request"
@@ -191,7 +190,7 @@ func GetAuthorityInfoList(info request.PageInfo) (err error, list interface{}, t
 //@param: auth model.SysAuthority
 //@return: err error, sa model.SysAuthority
 
-func GetAuthorityInfo(auth model.SysAuthority) (err error, sa model.SysAuthority) {
+func GetAuthorityInfo(auth postgres.SysAuthority) (err error, sa postgres.SysAuthority) {
 	err = global.GVA_DB.Preload("DataAuthorityId").Where("authority_id = ?", auth.AuthorityId).First(&sa).Error
 	return err, sa
 }
@@ -202,11 +201,12 @@ func GetAuthorityInfo(auth model.SysAuthority) (err error, sa model.SysAuthority
 //@param: auth model.SysAuthority
 //@return:error
 
-func SetDataAuthority(auth model.SysAuthority) error {
-	var s model.SysAuthority
-	global.GVA_DB.Preload("DataAuthorityId").First(&s, "authority_id = ?", auth.AuthorityId)
-	err := global.GVA_DB.Model(&s).Association("DataAuthorityId").Replace(&auth.DataAuthorityId)
-	return err
+func SetDataAuthority(auth postgres.SysAuthority) error {
+	//var s postgres.SysAuthority
+	//global.GVA_DB.Preload("DataAuthorityId").First(&s, "authority_id = ?", auth.AuthorityId)
+	//err := global.GVA_DB.Model(&s).Association("DataAuthorityId").Replace(&auth.DataAuthorityId)
+	//return err
+	return nil
 }
 
 //@author: [piexlmax](https://github.com/piexlmax)
